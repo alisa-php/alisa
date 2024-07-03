@@ -6,9 +6,9 @@ use Closure;
 
 trait HasFallbackHandler
 {
-    protected ?Closure $fallbackHandler = null;
+    protected Closure|array|string|null $fallbackHandler = null;
 
-    public function onFallback(?Closure $handler = null): Closure|static|null
+    public function onFallback(Closure|array|string|null $handler = null): Closure|array|string|static|null
     {
         if (!$handler) {
             return $this->fallbackHandler;
