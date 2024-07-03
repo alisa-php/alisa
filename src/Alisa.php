@@ -36,7 +36,7 @@ class Alisa
 
     protected Dispatcher $dispatcher;
 
-    protected ?Closure $onErrorHandler = null;
+    protected Closure|array|string|null $onErrorHandler = null;
 
     protected array $onAfterRunHandlers = [];
 
