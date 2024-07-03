@@ -15,6 +15,8 @@ class Config extends Collection
 
         'payload' => null,
 
+        'buttons' => [],
+
         'assets' => [],
 
         'components' => [],

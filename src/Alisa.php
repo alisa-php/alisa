@@ -7,6 +7,7 @@ use Alisa\Events\Event;
 use Alisa\Events\Group;
 use Alisa\Events\Scene;
 use Alisa\Support\Asset;
+use Alisa\Support\Buttons;
 use Alisa\Support\Collection;
 use Alisa\Support\Storage;
 use Alisa\Yandex\Entities\DatetimeEntity;
@@ -81,6 +82,7 @@ class Alisa
         $this->middleware($this->config->get('middlewares', []));
 
         Asset::load($this->config->get('assets', []));
+        Buttons::load($this->config->get('buttons', []));
     }
 
     public function components(array $components): static

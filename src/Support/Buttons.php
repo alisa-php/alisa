@@ -9,17 +9,12 @@ class Buttons
 {
     protected static array $buttons = [];
 
-    public static function set(array $buttons): void
+    public static function load(array $buttons): void
     {
         self::$buttons = $buttons;
     }
 
-    public static function append(array $buttons): void
-    {
-        self::$buttons = [...self::$buttons, ...$buttons];
-    }
-
-    public static function add(string $alias, array $buttons): void
+    public static function set(string $alias, array $buttons): void
     {
         self::$buttons[$alias] = $buttons;
     }
