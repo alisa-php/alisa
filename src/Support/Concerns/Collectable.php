@@ -23,7 +23,7 @@ trait Collectable
 
     public static function has(string $key): bool
     {
-        return isset($key, self::$items);
+        return isset(self::$items[$key]);
     }
 
     public static function remove(string $key): void
