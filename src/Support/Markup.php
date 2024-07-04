@@ -86,7 +86,7 @@ class Markup
     public static function plural(array $markup): array
     {
         $pluralize = function (string $text) {
-            return preg_replace_callback('/{\s?(\d):(.+?)}/iu', function ($match) {
+            return preg_replace_callback('/{\s?(\d+):(.+?)}/iu', function ($match) {
                 return plural(
                     $match[1],
                     array_map([self::class, 'variant'], array_filter(array_map('trim', explode(',', $match[2]))))
