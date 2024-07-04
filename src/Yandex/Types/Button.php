@@ -13,7 +13,7 @@ class Button
         protected ?string $action = null,
         protected array $payload = [],
         protected ?string $url = null,
-        protected bool $hide = false
+        protected bool $hide = true
     ) {
         $this->title = is_array($title) ? Markup::variant($title) : $title;
 
