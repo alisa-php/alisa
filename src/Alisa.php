@@ -59,13 +59,13 @@ class Alisa
         }
 
         // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-session
-        Session::load($this->context->get('state.session'));
+        Session::load($this->context->get('state.session', []));
 
         // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-application
-        Application::load($this->context->get('state.application'));
+        Application::load($this->context->get('state.application', []));
 
         // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-between-sessions
-        User::load($this->context->get('state.user'));
+        User::load($this->context->get('state.user', []));
 
         // https://yandex.ru/dev/dialogs/alice/doc/naming-entities.html
         foreach ($this->context->get('request.nlu.entities', []) as $key => $entity) {
