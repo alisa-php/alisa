@@ -146,9 +146,9 @@ class Context
      * Даже если пользователь вошел в один и тот же аккаунт в приложение Яндекс для Android и iOS, Яндекс Диалоги присвоят отдельный application_id каждому из этих приложений.
      * Этот идентификатор уникален для пары «приложение — навык»: в разных навыках значение свойства application_id для одного и того же пользователя будет различаться.
      *
-     * @return string
+     * @return string|null
      */
-    public function applicationId(): string
+    public function applicationId(): ?string
     {
         return $this->get('session.application.application_id');
     }
