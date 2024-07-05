@@ -76,7 +76,7 @@ class Context
     public function isPing(): bool
     {
         return
-            $this->get('request.command') === '' &&
+            $this->get('request.command') === 'ping' &&
             $this->get('request.original_utterance') === 'ping' &&
             $this->get('request.type') === 'SimpleUtterance';
     }
