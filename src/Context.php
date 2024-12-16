@@ -200,7 +200,7 @@ class Context
         return $this;
     }
 
-    public function leave(string $scene)
+    public function leave()
     {
         Session::set('__scene__', null);
 

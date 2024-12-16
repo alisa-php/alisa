@@ -250,7 +250,7 @@ class Sound
         return json_decode($response, true);
     }
 
-    public  function __destruct()
+    public function __destruct()
     {
         foreach ($this->oncedData as $id => $item) {
             $this->delete($id);

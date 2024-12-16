@@ -10,7 +10,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $alisa = new Alisa;
 
-Buttons::add('incrementing', [
+Buttons::set('incrementing', [
     new Button('+1', 'increment:1', hide: true),
     new Button('+5', 'increment:5', hide: true),
     new Button('+10', 'increment:10', hide: true),
@@ -22,11 +22,9 @@ $alisa->onStart(function (Context $context) {
 });
 
 $alisa->onAction('increment:{amount}', function (Context $context, int $amount) {
-    $counter = Session::increment('counter', $amount);
+    $value = Session::increment('counter', $amount);
 
-    Session::set('counter', $counter);
-
-    $context->reply('Счётчик: ' .  $counter, buttons: 'incrementing');
+    $context->reply('Счётчик: ' .  $value, buttons: 'incrementing');
 });
 
 $alisa->run();

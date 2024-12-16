@@ -21,7 +21,7 @@ class FioEntity extends Entity
 
     public function fullName(): string
     {
-        return join(' ', array_filter([
+        return implode(' ', array_filter([
             $this->firstName(),
             $this->middleName(),
             $this->lastName()])

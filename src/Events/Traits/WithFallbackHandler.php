@@ -1,10 +1,10 @@
 <?php
 
-namespace Alisa\Support\Concerns;
+namespace Alisa\Events\Traits;
 
 use Closure;
 
-trait HasFallbackHandler
+trait WithFallbackHandler
 {
     protected Closure|array|string|null $fallbackHandler = null;
 

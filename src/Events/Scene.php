@@ -3,10 +3,10 @@
 namespace Alisa\Events;
 
 use Alisa\Events\Group;
-use Alisa\Support\Concerns\HasAnyHandler;
-use Alisa\Support\Concerns\HasFallbackHandler;
+use Alisa\Support\Concerns\WithAnyHandler;
+use Alisa\Support\Concerns\WithFallbackHandler;
 
 class Scene extends Group
 {
-    use HasFallbackHandler, HasAnyHandler;
+    use WithFallbackHandler, WithAnyHandler;
 }

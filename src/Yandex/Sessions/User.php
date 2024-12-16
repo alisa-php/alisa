@@ -2,9 +2,7 @@
 
 namespace Alisa\Yandex\Sessions;
 
-use Alisa\Support\Concerns\Collectable;
-
-class User
+class User extends AbstractSession
 {
-    use Collectable;
+    //
 }

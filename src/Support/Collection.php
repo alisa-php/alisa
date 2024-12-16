@@ -112,7 +112,7 @@ class Collection implements ArrayAccess, Countable
      */
     public function all()
     {
-        return $this->items;
+        return $this->toArray();
     }
 
     /**

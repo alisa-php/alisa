@@ -46,7 +46,7 @@ class Group
             return
                 $context('session.new') === true &&
 
-                // только если комманда пустая,
+                // только если команда пустая,
                 // чтобы не пропустить запрос вида: спроси у <навыка> что-нибудь
                 in_array($context('request.command'), [null, ''], strict: true);
         };

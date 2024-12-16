@@ -1,8 +1,8 @@
 <?php
 
-namespace Alisa\Support\Concerns;
+namespace Alisa\Yandex\Sessions;
 
-trait Collectable
+abstract class AbstractSession
 {
     protected static array $items = [];
 
@@ -31,14 +31,22 @@ trait Collectable
         unset(self::$items[$key]);
     }
 
-    public static function increment(string $key, int $amount = 1): int
+    public static function increment(string $key, int|float $amount = 1): int
     {
-        return self::get($key, 0) + $amount;
+        $value = self::get($key, 0) + $amount;
+
+        self::set($key, $value);
+
+        return $value;
     }
 
-    public static function decrement(string $key, int $amount = 1): int
+    public static function decrement(string $key, int|float $amount = 1): int
     {
-        return self::get($key, 0) - $amount;
+        $value = self::get($key, 0) - $amount;
+
+        self::set($key, $value);
+
+        return $value;
     }
 
     public static function count(): int
@@ -47,6 +55,11 @@ trait Collectable
     }
 
     public static function all(): array
+    {
+        return self::toArray();
+    }
+
+    public static function toArray(): array
     {
         return self::$items;
     }

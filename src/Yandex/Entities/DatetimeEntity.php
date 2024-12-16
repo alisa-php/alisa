@@ -4,6 +4,7 @@ namespace Alisa\Yandex\Entities;
 
 use Alisa\Support\Markup;
 use DateTime;
+use DateTimeZone;
 
 class DatetimeEntity extends Entity
 {
@@ -90,10 +91,14 @@ class DatetimeEntity extends Entity
         $dateStr = Markup::trimWhitespace($date . ' ' . $time);
 
         if (!$forceTimezone && $useTimezoneFromRequest) {
-            $timezone = $this->context->get('meta.timezone', date_default_timezone_get());
+            $timezone = new DateTimeZone($this->context->get('meta.timezone', date_default_timezone_get()));
         }
 
-        return new DateTime($dateStr, $forceTimezone ?? $timezone ?? null);
+        if ($forceTimezone) {
+            $timezone = new DateTimeZone($forceTimezone);
+        }
+
+        return new DateTime($dateStr, $timezone ?? null);
     }
 
     public function __toString(): string

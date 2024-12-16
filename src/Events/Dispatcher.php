@@ -4,15 +4,15 @@ namespace Alisa\Events;
 
 use Alisa\Context;
 use Alisa\Events\Scene;
-use Alisa\Support\Concerns\HasAnyHandler;
-use Alisa\Support\Concerns\HasFallbackHandler;
+use Alisa\Support\Concerns\WithAnyHandler;
+use Alisa\Support\Concerns\WithFallbackHandler;
 use Closure;
 
 use function Alisa\Support\Helpers\call_handler;
 
 class Dispatcher extends Group
 {
-    use HasFallbackHandler, HasAnyHandler;
+    use WithFallbackHandler, WithAnyHandler;
 
     /**
      * @var Scene[]
