@@ -4,8 +4,10 @@ namespace Alisa;
 
 abstract class Component
 {
-    public function __construct(protected Alisa $alisa, protected Context $context)
-    {
+    public function __construct(
+        protected Alisa $alisa,
+        protected array $args = []
+    ) {
         //
     }
 

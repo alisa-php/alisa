@@ -2,238 +2,93 @@
 
 namespace Alisa;
 
-use Alisa\Events\Dispatcher;
-use Alisa\Events\Event;
-use Alisa\Events\Group;
-use Alisa\Events\Scene;
-use Alisa\Support\Asset;
-use Alisa\Support\Buttons;
-use Alisa\Support\Collection;
-use Alisa\Support\Storage;
-use Alisa\Yandex\Entities\DatetimeEntity;
-use Alisa\Yandex\Entities\Entity;
-use Alisa\Yandex\Entities\FioEntity;
-use Alisa\Yandex\Entities\GeoEntity;
-use Alisa\Yandex\Entities\NumberEntity;
-use Alisa\Yandex\Image;
-use Alisa\Yandex\Sessions\Application;
-use Alisa\Yandex\Sessions\Session;
-use Alisa\Yandex\Sessions\User;
-use Alisa\Yandex\Sound;
-use Closure;
+use Alisa\Events\EventManager;
+use Alisa\Exceptions\AlisaException;
+use Alisa\Http\Request;
+use Alisa\Scenes\Stage;
+use Alisa\Sessions\AbstractSession;
+use Alisa\Sessions\Application;
+use Alisa\Sessions\Session;
+use Alisa\Sessions\User;
+use Alisa\Stores\Assets;
+use Alisa\Stores\Buttons;
+use Alisa\Stores\Middlewares;
 use Throwable;
 
-use function Alisa\Support\Helpers\array_flatten;
-use function Alisa\Support\Helpers\call_handler;
-
-class Alisa
+class Alisa extends EventManager
 {
-    protected Context $context;
-
-    protected Config $config;
-
-    protected Storage $storage;
-
-    protected Dispatcher $dispatcher;
-
-    protected Closure|array|string|null $onErrorHandler = null;
-
-    protected array $onAfterRunHandlers = [];
-
-    protected array $onBeforeRunHandlers = [];
-
-    protected Image $image;
-
-    protected Sound $sound;
+    protected Request $request;
 
     public function __construct(array $config = [])
     {
-        $this->config = new Config($config);
-        $this->context = new Context($this->config->get('payload'));
-        $this->dispatcher = new Dispatcher;
-        $this->storage = new Storage($this->config->get('storage'), $this->config->get('skill_id'));
+        Config::fill($config);
 
-        // https://yandex.ru/dev/dialogs/alice/doc/health-check.html
-        if ($this->context->isPing()) {
-            exit($this->context->finish('pong'));
+        $this->setRequest(new Request(Config::get('request')));
+
+        if ($this->request->isPing()) {
+            //
         }
 
-        // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-session
-        Session::load($this->context->get('state.session', []));
+        $this->loadSessions();
+        $this->loadStores();
 
-        // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-application
-        Application::load($this->context->get('state.application', []));
+        $this->registerComponents();
+    }
+
+    protected function loadSessions(): void
+    {
+        // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-session
+        Session::load(
+            $this->request->get('state.session', [])
+        );
 
         // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-between-sessions
-        User::load($this->context->get('state.user', []));
+        User::load(
+            $this->request->get('state.user', [])
+        );
 
-        // https://yandex.ru/dev/dialogs/alice/doc/naming-entities.html
-        foreach ($this->context->get('request.nlu.entities', []) as $key => $entity) {
-            $this->context->set('request.nlu.entities.'.$key, match ($entity['type']) {
-                'YANDEX.FIO' => new FioEntity($entity, $this->context),
-                'YANDEX.GEO' => new GeoEntity($entity, $this->context),
-                'YANDEX.NUMBER' => new NumberEntity($entity, $this->context),
-                'YANDEX.DATETIME' => new DatetimeEntity($entity, $this->context),
-                default => new Entity($entity, $this->context),
-            });
-        }
-
-        $this->components($this->config->get('components', []));
-        $this->middleware($this->config->get('middlewares', []));
-
-        Asset::load($this->config->get('assets', []));
-        Buttons::load($this->config->get('buttons', []));
+        // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-application
+        Application::load(
+            $this->request->get('state.application', [])
+        );
     }
 
-    public function components(array $components): static
+    protected function loadStores(): void
     {
-        foreach ($components as $key => $value) {
+        Middlewares::load(Config::get('middlewares', []));
+        Assets::load(Config::get('assets', []));
+        Buttons::load(Config::get('buttons', []));
+    }
+
+    public function registerComponents(): void
+    {
+        foreach (Config::get('components') as $key => $value) {
+            // [Component::class]
             if (is_numeric($key) && is_string($value)) {
-                $component = new $value($this, $this->context);
-                $component->handle();
-            } else if (is_string($key) && is_array($value)) {
-                $component = new $key($this, $this->context);
-                $component->register(...$value);
+                $component = new $value($this);
             }
+
+            // [Component::class, ['foo' => 'bar']]
+            else if (is_string($key)) {
+                $component = new $key($this, $value);
+            }
+
+            if (!$component instanceof Component) {
+                throw new AlisaException('Component must be an instance of ' . Component::class . '.');
+            }
+
+            $component->register();
         }
-
-        return $this;
     }
 
-    public function config(): Config
+    public function getRequest(): Request
     {
-        return $this->config;
+        return $this->request;
     }
 
-    public function context(): Context
+    public function setRequest(Request $request): static
     {
-        return $this->context;
-    }
-
-    public function storage(): Storage
-    {
-        return $this->storage;
-    }
-
-    public function image(): Image
-    {
-        return isset($this->image) ? $this->image : $this->image = new Image($this);
-    }
-
-    public function sound(): Sound
-    {
-        return isset($this->sound) ? $this->sound : $this->sound = new Sound($this);
-    }
-
-    public function scene(string $name, Closure $callback): Scene
-    {
-        return $this->dispatcher->scene($name, $callback);
-    }
-
-    public function group(Closure $callback, int $priority = 0): Group
-    {
-        return $this->dispatcher->group($callback, $priority);
-    }
-
-    public function middleware(Closure|array|string $callback): static
-    {
-        if (!is_array($callback)) {
-            $callback = [$callback];
-        }
-
-        foreach ($callback as $middleware) {
-            $this->dispatcher->middleware($middleware);
-        }
-
-        return $this;
-    }
-
-    public function on(Closure|array|string $pattern, Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->on($pattern, $handler, $priority);
-    }
-
-    public function onStart(Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onStart($handler, $priority);
-    }
-
-    public function onCommand(array|string $command, Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onCommand($command, $handler, $priority);
-    }
-
-    public function onAction(array|string $action, Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onAction($action, $handler, $priority);
-    }
-
-    public function onIntent(array|string $id, Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onIntent($id, $handler, $priority);
-    }
-
-    public function onConfirm(Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onConfirm($handler, $priority);
-    }
-
-    public function onReject(Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onReject($handler, $priority);
-    }
-
-    public function onHelp(Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onHelp($handler, $priority);
-    }
-
-    public function onRepeat(Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onRepeat($handler, $priority);
-    }
-
-    public function onWhatCanYouDo(Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onWhatCanYouDo($handler, $priority);
-    }
-
-    public function onDangerous(Closure|array|string $handler, int $priority = 0): Event
-    {
-        return $this->dispatcher->onDangerous($handler, $priority);
-    }
-
-    public function onAny(Closure|array|string $handler, int $priority = 0): static
-    {
-        $this->dispatcher->onAny($handler, $priority);
-
-        return $this;
-    }
-
-    public function onFallback(Closure|array|string $handler): static
-    {
-        $this->dispatcher->onFallback($handler);
-
-        return $this;
-    }
-
-    public function onError(Closure|array|string $callback): static
-    {
-        $this->onErrorHandler = $callback;
-
-        return $this;
-    }
-
-    public function onBeforeRun(Closure|array|string $handler, int $priority = 0): static
-    {
-        $this->onBeforeRunHandlers[$priority][] = $handler;
-
-        return $this;
-    }
-
-    public function onAfterRun(Closure|array|string $handler, int $priority = 0): static
-    {
-        $this->onAfterRunHandlers[$priority][] = $handler;
+        $this->request = $request;
 
         return $this;
     }
@@ -241,21 +96,34 @@ class Alisa
     public function run(): void
     {
         try {
-            foreach (array_flatten($this->onBeforeRunHandlers) as $handler) {
-                call_handler($handler, $this->context);
-            }
+            $this->currentScene()->dispatch($this->request);
 
-            $this->dispatcher->dispatch($this->context);
-
-            foreach (array_flatten($this->onAfterRunHandlers) as $handler) {
-                call_handler($handler, $this->context);
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
             }
         } catch (Throwable $th) {
-            if ($this->onErrorHandler) {
-                call_handler($this->onErrorHandler, $this->context, $th);
-            } else {
-                throw $th;
-            }
+            throw $th;
         }
+    }
+
+    protected function currentScene(): EventManager
+    {
+        $sceneKey = Config::get('scene.key');
+
+        if (!$sceneKey) {
+            throw AlisaException::invalidSceneKey();
+        }
+
+        $driver = new (Config::get('scene.driver'));
+
+        if (!$driver instanceof AbstractSession) {
+            throw AlisaException::invalidSceneDriver();
+        }
+
+        if (($sceneId = $driver::get($sceneKey)) && $scene = Stage::get($sceneId)) {
+            return $scene;
+        }
+
+        return $this;
     }
 }

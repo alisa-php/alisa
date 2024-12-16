@@ -7,12 +7,14 @@ use Countable;
 
 class Collection implements ArrayAccess, Countable
 {
+    protected array $items = [];
+
     /**
      * @param array $items
      */
-    public function __construct(protected array $items = [])
+    public function __construct(array $items = [])
     {
-        //
+        $this->items = $items;
     }
 
     /**
@@ -110,9 +112,33 @@ class Collection implements ArrayAccess, Countable
     /**
      * @return array
      */
-    public function all()
+    public function all(): array
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
     {
         return $this->items;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->toJson();
+    }
+
+    /**
+     * @return string
+     */
+    public function toJson(int $flags = 0, int $depth = 512): string
+    {
+        return json_encode($this->items, $flags, $depth);
     }
 
     /**
@@ -158,30 +184,6 @@ class Collection implements ArrayAccess, Countable
     public function offsetUnset($offset): void
     {
         unset($this->items[$offset]);
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->items;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return json_encode($this->items);
-    }
-
-    /**
-     * @return string
-     */
-    public function toJson()
-    {
-        return json_encode($this->items);
     }
 
     /**

@@ -3,101 +3,100 @@
 namespace Alisa\Events;
 
 use Alisa\Context;
+use Alisa\Events\Traits\WithMiddlewares;
 use Closure;
 
-use function Alisa\Support\Helpers\call_handler;
+use function Alisa\Support\Helpers\pipeline;
 
 class Event
 {
-    protected array $middlewares = [];
+    use WithMiddlewares;
 
     public function __construct(
-        protected Closure|array|string $pattern,
-        protected Closure|array|string $handler
+        protected Closure|string|array $pattern,
+        protected Closure|string|array $handler
     ) {
         //
     }
 
-    public function match(Context $context): array
+    public function handle(Context $context, ?array $matches = null): void
     {
-        if (is_string($this->pattern)) {
-            $this->pattern = [$this->pattern];
+        if ($matches) {
+            call_user_func($this->handler, $context,...$matches);
+        } else {
+            call_user_func($this->handler, $context);
         }
+    }
 
-        if ($this->pattern instanceof Closure) {
-            $this->pattern = [$this->pattern];
-        }
+    public function match(Context $context)
+    {
+        $hasMatched = false;
 
-        foreach ($this->pattern as $segments => $values) {
-            foreach ((array) $values as $value) {
-                // closure
-                if ($value instanceof Closure) {
-                    if ($parameters = call_user_func($value, $context)) {
-                        return [true, is_array($parameters) ? $parameters : null];
-                    } else {
-                        continue;
-                    }
+        pipeline([
+            ...$this->middlewares,
+            function (Context $context) use (&$hasMatched) {
+                if (is_string($this->pattern)) {
+                    $this->pattern = [$this->pattern];
                 }
 
-                // [requesst.command]
-                if (is_numeric($segments) && $context->has($value)) {
-                    return [true, null];
+                if ($this->pattern instanceof Closure) {
+                    $this->pattern = [$this->pattern];
                 }
 
-                // not found
-                if (!$subject = $context->get($segments)) {
-                    return [false, null];
-                }
+                foreach ($this->pattern as $segments => $values) {
+                    foreach ((array) $values as $value) {
+                        // closure
+                        if ($value instanceof Closure) {
+                            if ($parameters = call_user_func($value, $context)) {
+                                $this->handle($context, is_array($parameters) ? $parameters : []);
+                                return $hasMatched = true;
+                            } else {
+                                continue;
+                            }
+                        }
 
-                if (is_string($value)) {
-                    // точное текстовое совпадение
-                    if ($value === $subject) {
-                        return [true, null];
-                    }
+                        // [request.command]
+                        if (is_numeric($segments) && $context->has($value)) {
+                            $this->handle($context);
+                            return $hasMatched = true;
+                        }
 
-                    // word and {word} {word?}
-                    $pattern = preg_replace('~\s{\w+\?}~', '(?: (.*?))?', $value);
-                    $pattern = '~^' . preg_replace('/{\w+}/', '(.*?)', $pattern) . '$~iu';
+                        // not found
+                        if (!$subject = $context->get($segments)) {
+                            return $hasMatched = false;
+                        }
 
-                    if (@preg_match($pattern, $subject, $matches)) {
-                        unset($matches[0]);
-                        return [true, $matches];
-                    }
-                }
+                        if (is_string($value)) {
+                            // точное текстовое совпадение
+                            if ($value === $subject) {
+                                $this->handle($context);
+                                return $hasMatched = true;
+                            }
 
-                // regex
-                foreach ((array) $value as $pattern) {
-                    if (@preg_match($pattern, $subject, $matches)) {
-                        unset($matches[0]);
-                        return [true, $matches];
+                            // word and {word} {word?}
+                            $pattern = preg_replace('~\s{\w+\?}~', '(?: (.*?))?', $value);
+                            $pattern = '~^' . preg_replace('/{\w+}/', '(.*?)', $pattern) . '$~iu';
+
+                            if (@preg_match($pattern, $subject, $matches)) {
+                                unset($matches[0]);
+                                $this->handle($context, $matches);
+                                return $hasMatched = true;
+                            }
+                        }
+
+                        // regex
+                        foreach ((array) $value as $pattern) {
+                            if (@preg_match($pattern, $subject, $matches)) {
+                                unset($matches[0]);
+                                $this->handle($context, $matches);
+                                return $hasMatched = true;
+                            }
+                        }
                     }
                 }
             }
-        }
+        ], [$context]);
 
-        return [false, null];
-    }
-
-    public function handle(Context $context, ...$matches): void
-    {
-        call_handler($this->handler, $context, ...$matches);
-    }
-
-    public function middleware(Closure|array|string $callback): static
-    {
-        if (!is_array($callback)) {
-            $callback = [$callback];
-        }
-
-        foreach ($callback as $middleware) {
-            $this->middlewares[] = $middleware;
-        }
-
-        return $this;
-    }
-
-    public function middlewares(): array
-    {
-        return $this->middlewares;
+        return $hasMatched;
     }
 }
