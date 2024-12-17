@@ -10,8 +10,8 @@ class VersionComponent extends Component
 {
     public function register()
     {
-        $this->alisa->onCommand('версия', function (Context $context) {
-            dump('Версия навыка: ' . $this->args['version']);
+        $this->alisa->onCommand('версия', function (Context $ctx) {
+            $ctx->reply('Версия навыка: ' . $this->args['version']);
         });
     }
 }

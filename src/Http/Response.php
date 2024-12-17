@@ -20,21 +20,21 @@ class Response
         'version' => '1.0',
     ];
 
-    public function withText(string $text): static
+    public function text(string $text): static
     {
         $this->response['response']['text'] = $text;
 
         return $this;
     }
 
-    public function withTts(string $tts): static
+    public function tts(string $tts): static
     {
         $this->response['response']['tts'] = $tts;
 
         return $this;
     }
 
-    public function withButtons(array|string $buttons): static
+    public function buttons(array|string $buttons): static
     {
         if (is_string($buttons)) {
             $buttons = Buttons::get($buttons);
@@ -82,6 +82,11 @@ class Response
         $this->response['response']['end_session'] = $value;
 
         return $this;
+    }
+
+    public function pong(): static
+    {
+        return $this->text('pong')->tts('pong')->finish(true);
     }
 
     public function __toString(): string

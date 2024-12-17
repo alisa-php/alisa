@@ -2,6 +2,8 @@
 
 namespace Alisa\Support\Helpers;
 
+use Alisa\Exceptions\AlisaException;
+
 function array_flatten(array $array): array {
     ksort($array);
 
@@ -43,4 +45,44 @@ function mb_ucfirst(string $string, ?string $encoding = null): string {
     $then = mb_substr($string, 1, null, $encoding);
 
     return mb_strtoupper($firstChar, $encoding) . $then;
+}
+
+if (!function_exists('roll')) {
+    /**
+     * $chances = [
+     *   ['%' => 10, 'result' => 'это вероятность 10%'],
+     *   ['%' => 50, 'result' => 'это вероятность 50%'],
+     *   ['%' => 4.5, 'result' => 'это вероятность 4.5%'],
+     *   ['%' => 5.5, 'result' => 'это вероятность 5.5%'],
+     *   ['%' => 30, 'result' => 'это вероятность 30%'],
+     * ];
+     *
+     * @param array $chances
+     * @return mixed
+     * @throws Exception
+     */
+    function roll(array $chances): mixed
+    {
+        $sum = 0;
+        foreach ($chances as $item) {
+            $sum += (int)($item['%'] * 100);
+        }
+
+        if ($sum !== 10000) {
+            throw new AlisaException("Сумма вероятностей должна быть равна 100, текущая сумма: " . ($sum / 100));
+        }
+
+        $random = mt_rand(1, 10000);
+        $currentSum = 0;
+
+        foreach ($chances as $item) {
+            $currentSum += (int)($item['%'] * 100);
+            if ($random <= $currentSum) {
+                return $item['result'];
+            }
+        }
+
+        // Если по какой-то причине мы дошли до этой точки, возвращаем случайный элемент
+        return $chances[array_rand($chances)]['result'];
+    }
 }

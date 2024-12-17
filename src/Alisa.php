@@ -2,9 +2,15 @@
 
 namespace Alisa;
 
+use Alisa\Entities\DatetimeEntity;
+use Alisa\Entities\Entity;
+use Alisa\Entities\FioEntity;
+use Alisa\Entities\GeoEntity;
+use Alisa\Entities\NumberEntity;
 use Alisa\Events\EventManager;
 use Alisa\Exceptions\AlisaException;
 use Alisa\Http\Request;
+use Alisa\Http\Response;
 use Alisa\Scenes\Stage;
 use Alisa\Sessions\AbstractSession;
 use Alisa\Sessions\Application;
@@ -25,9 +31,15 @@ class Alisa extends EventManager
 
         $this->setRequest(new Request(Config::get('request')));
 
-        if ($this->request->isPing()) {
-            //
+        if (!Config::get('skill_id') && ($skillId = $this->request->get('session.skill_id'))) {
+            Config::set('skill_id', $skillId);
         }
+
+        if ($this->request->isPing()) {
+            exit((new Response)->pong());
+        }
+
+        $this->mapEntities();
 
         $this->loadSessions();
         $this->loadStores();
@@ -38,19 +50,27 @@ class Alisa extends EventManager
     protected function loadSessions(): void
     {
         // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-session
-        Session::load(
-            $this->request->get('state.session', [])
-        );
+        Session::configure($this->request);
 
         // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-between-sessions
-        User::load(
-            $this->request->get('state.user', [])
-        );
+        User::configure($this->request);
 
         // https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-application
-        Application::load(
-            $this->request->get('state.application', [])
-        );
+        Application::configure($this->request);
+    }
+
+    protected function mapEntities(): void
+    {
+        // https://yandex.ru/dev/dialogs/alice/doc/naming-entities.html
+        foreach ($this->request->get('request.nlu.entities', []) as $key => $entity) {
+            $this->request->set('request.nlu.entities.' . $key, match ($entity['type']) {
+                'YANDEX.FIO' => new FioEntity($entity, $this->request),
+                'YANDEX.GEO' => new GeoEntity($entity, $this->request),
+                'YANDEX.NUMBER' => new NumberEntity($entity, $this->request),
+                'YANDEX.DATETIME' => new DatetimeEntity($entity, $this->request),
+                default => new Entity($entity, $this->request),
+            });
+        }
     }
 
     protected function loadStores(): void

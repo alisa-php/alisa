@@ -9,11 +9,11 @@ class AlisaException extends Exception
 {
     public static function invalidSceneKey()
     {
-        return new RuntimeException('The scene key is invalid in [scene.key].');
+        return new RuntimeException('Установите корректный ключ сцены [scene.key].');
     }
 
     public static function invalidSceneDriver()
     {
-        return new RuntimeException('The scene driver is invalid in [scene.driver].');
+        return new RuntimeException('Драйвер сцены должен быть классом сессии [scene.driver].');
     }
 }

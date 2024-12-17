@@ -95,6 +95,41 @@ class EventManager
         return $this->on(['request.markup.dangerous_context' => true], $handler, $priority);
     }
 
+    public function onPurchaseConfirmation(Closure|array|string $handler, int $priority = 0): Event
+    {
+        return $this->on(['request.type' => 'Purchase.Confirmation'], $handler, $priority);
+    }
+
+    public function onShowPull(Closure|array|string $handler, int $priority = 0): Event
+    {
+        return $this->on(['request.type' => 'Show.Pull'], $handler, $priority);
+    }
+
+    public function onAudioPlayerPlaybackStarted(Closure|array|string $handler, int $priority = 0): Event
+    {
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackStarted'], $handler, $priority);
+    }
+
+    public function onAudioPlayerPlaybackFinished(Closure|array|string $handler, int $priority = 0): Event
+    {
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackFinished'], $handler, $priority);
+    }
+
+    public function onAudioPlayerPlaybackNearlyFinished(Closure|array|string $handler, int $priority = 0): Event
+    {
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackNearlyFinished'], $handler, $priority);
+    }
+
+    public function onAudioPlayerPlaybackStopped(Closure|array|string $handler, int $priority = 0): Event
+    {
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackStopped'], $handler, $priority);
+    }
+
+    public function onAudioPlayerPlaybackFailed(Closure|array|string $handler, int $priority = 0): Event
+    {
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackFailed'], $handler, $priority);
+    }
+
     public function onFallback(?Closure $handler = null): static
     {
         $this->fallbackHandler = $handler;

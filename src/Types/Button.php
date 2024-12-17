@@ -41,6 +41,7 @@ class Button
     public function payload(array $payload): static
     {
         $this->payload = $payload;
+        $this->hide = true;
 
         return $this;
     }

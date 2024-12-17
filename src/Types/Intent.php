@@ -9,7 +9,7 @@ class Intent
         //
     }
 
-    public function slot(string $name, ?array $default = null): mixed
+    public function getSlot(string $name, ?array $default = null): mixed
     {
         return $this->slots[$name] ?? $default;
     }
