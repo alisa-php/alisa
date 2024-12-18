@@ -15,8 +15,8 @@ trait WithMiddlewares
             foreach ($middlewares as $middleware) {
                 if ($middleware instanceof Closure) {
                     $this->middlewares[] = $middleware;
-                } else if (is_string($middlewares)) {
-                    $this->middlewares[] = Middlewares::get($middlewares);
+                } else if (is_string($middleware)) {
+                    $this->middlewares[] = Middlewares::get($middleware, $middleware);
                 }
             }
         } else if ($middlewares instanceof Closure) {
