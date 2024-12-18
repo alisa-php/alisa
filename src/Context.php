@@ -204,4 +204,12 @@ class Context extends Request
     {
         return $this->get('request.payload.' . $key, $default);
     }
+
+    public function __toString(): string
+    {
+        return json_encode(
+            $this->toArray(),
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+    }
 }
