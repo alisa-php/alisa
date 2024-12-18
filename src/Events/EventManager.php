@@ -17,7 +17,7 @@ class EventManager
 
     protected array $events = [];
 
-    protected ?Closure $fallbackHandler = null;
+    protected Closure|array|string|null $fallbackHandler = null;
 
     public function on(
         Closure|string|array $pattern,
