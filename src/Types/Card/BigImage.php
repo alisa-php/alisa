@@ -2,7 +2,7 @@
 
 namespace Alisa\Types\Card;
 
-use Alisa\Stores\Assets;
+use Alisa\Stores\Asset;
 
 /**
  * @see https://yandex.ru/dev/dialogs/alice/doc/ru/response-card-bigimage
@@ -32,7 +32,7 @@ class BigImage extends AbstractCard
 
     public function image(string $imageId): static
     {
-        $this->card['image_id'] = Assets::get($imageId) ?? $imageId;
+        $this->card['image_id'] = Asset::get($imageId) ?? $imageId;
 
         return $this;
     }

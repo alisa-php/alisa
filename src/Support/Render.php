@@ -2,7 +2,7 @@
 
 namespace Alisa\Support;
 
-use Alisa\Stores\Assets;
+use Alisa\Stores\Asset;
 
 use function Alisa\Support\Helpers\plural;
 
@@ -72,7 +72,7 @@ class Render
             'text' => preg_replace('/{\s?audio:(.+?)}/iu', '', preg_replace('/{\s?\/\s?audio\s?}/iu', '', $value['text'])),
             'tts' => preg_replace_callback('/{\s?audio:(.+?)}/iu', function ($match) {
                 $variant = self::variant($match[1]);
-                $variant = Assets::get($variant) ?? $variant;
+                $variant = Asset::get($variant) ?? $variant;
 
                 if (!str_ends_with($variant, '.opus')) {
                     $variant .= '.opus';

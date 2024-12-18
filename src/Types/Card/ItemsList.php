@@ -2,7 +2,7 @@
 
 namespace Alisa\Types\Card;
 
-use Alisa\Stores\Assets;
+use Alisa\Stores\Asset;
 
 /**
  * @see https://yandex.ru/dev/dialogs/alice/doc/ru/response-card-itemslist
@@ -25,7 +25,7 @@ class ItemsList extends AbstractCard
     public function add(string $imageId, ?string $title = null, ?string $description = null, Button|string|null $button = null): static
     {
         $this->card['items'][] = [
-            'image_id' => Assets::get($imageId, $imageId),
+            'image_id' => Asset::get($imageId, $imageId),
             'title' => $title,
             'description' => $description,
             'button' => $this->resolveButton($button),

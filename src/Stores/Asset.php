@@ -2,7 +2,7 @@
 
 namespace Alisa\Stores;
 
-class Assets
+class Asset
 {
     protected static array $assets = [];
 

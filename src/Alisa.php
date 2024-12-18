@@ -16,7 +16,7 @@ use Alisa\Sessions\AbstractSession;
 use Alisa\Sessions\Application;
 use Alisa\Sessions\Session;
 use Alisa\Sessions\User;
-use Alisa\Stores\Assets;
+use Alisa\Stores\Asset;
 use Alisa\Stores\Buttons;
 use Alisa\Stores\Middlewares;
 use Throwable;
@@ -76,7 +76,7 @@ class Alisa extends EventManager
     protected function loadStores(): void
     {
         Middlewares::load(Config::get('middlewares', []));
-        Assets::load(Config::get('assets', []));
+        Asset::load(Config::get('assets', []));
         Buttons::load(Config::get('buttons', []));
     }
 
