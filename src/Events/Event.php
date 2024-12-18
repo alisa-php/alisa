@@ -6,6 +6,7 @@ use Alisa\Context;
 use Alisa\Events\Traits\WithMiddlewares;
 use Closure;
 
+use function Alisa\Support\Helpers\call_handler;
 use function Alisa\Support\Helpers\pipeline;
 
 class Event
@@ -22,9 +23,9 @@ class Event
     public function handle(Context $context, ?array $matches = null): void
     {
         if ($matches) {
-            call_user_func($this->handler, $context,...$matches);
+            call_handler($this->handler, $context, ...$matches);
         } else {
-            call_user_func($this->handler, $context);
+            call_handler($this->handler, $context);
         }
     }
 

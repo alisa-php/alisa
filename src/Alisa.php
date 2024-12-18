@@ -19,11 +19,16 @@ use Alisa\Sessions\User;
 use Alisa\Stores\Asset;
 use Alisa\Stores\Buttons;
 use Alisa\Stores\Middlewares;
+use Closure;
 use Throwable;
+
+use function Alisa\Support\Helpers\call_handler;
 
 class Alisa extends EventManager
 {
     protected Request $request;
+
+    protected Closure|array|string|null $onErrorHandler = null;
 
     public function __construct(array $config = [])
     {
@@ -113,6 +118,13 @@ class Alisa extends EventManager
         return $this;
     }
 
+    public function onError(Closure|array|string $callback): static
+    {
+        $this->onErrorHandler = $callback;
+
+        return $this;
+    }
+
     public function run(): void
     {
         try {
@@ -122,7 +134,11 @@ class Alisa extends EventManager
                 fastcgi_finish_request();
             }
         } catch (Throwable $th) {
-            throw $th;
+            if ($this->onErrorHandler) {
+                call_handler($this->onErrorHandler, new Context($this->request), $th);
+            } else {
+                throw $th;
+            }
         }
     }
 

@@ -3,6 +3,7 @@
 namespace Alisa\Support\Helpers;
 
 use Alisa\Exceptions\AlisaException;
+use Closure;
 
 function array_flatten(array $array): array {
     ksort($array);
@@ -85,4 +86,23 @@ if (!function_exists('roll')) {
         // Если по какой-то причине мы дошли до этой точки, возвращаем случайный элемент
         return $chances[array_rand($chances)]['result'];
     }
+}
+
+function call_handler($handler, ...$parameters): mixed {
+    if ($handler instanceof Closure) {
+        return call_user_func($handler, ...$parameters);
+    } else if (is_string($handler)) {
+        return (new $handler)(...$parameters);
+    } else if (is_array($handler)) {
+        if (count($handler) === 2) {
+            [$class, $method] = $handler;
+
+            $handler = new $class;
+            return $handler->{$method}(...$parameters);
+        } else {
+            return (new $handler[0])(...$parameters);
+        }
+    }
+
+    throw new AlisaException('Невозможно выполнить вызов', 1001);
 }

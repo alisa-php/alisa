@@ -136,7 +136,7 @@ class EventManager
         return $this->on(['request.type' => 'AudioPlayer.PlaybackFailed'], $handler, $priority);
     }
 
-    public function onFallback(?Closure $handler = null): static
+    public function onFallback(Closure|array|string|null $handler = null): static
     {
         $this->fallbackHandler = $handler;
 
@@ -163,7 +163,7 @@ class EventManager
         };
 
         $default = function (Context $context) {
-            if ($this->fallbackHandler) {
+            if ($this->fallbackHandler !== null) {
                 call_user_func($this->fallbackHandler, $context);
             }
         };
