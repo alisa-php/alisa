@@ -11,11 +11,11 @@ class Storage
     public function __construct(?string $path = null, ?string $folder = null)
     {
         if (!$folder) {
-            $folder = '__unsorted__';
+            $folder = '_default';
         }
 
         if (!$path) {
-            $subfolder = Config::get('skill_id') ?: '_default';
+            $subfolder = Config::get('skill_id') ?: '_common';
             $this->path = sys_get_temp_dir() . '/alisa/' . $subfolder . '/' . trim($folder, '\/');
         } else {
             $this->path = rtrim($path, '\/');

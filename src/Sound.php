@@ -30,9 +30,9 @@ class Sound
             throw new SoundException('Заполните в конфиге идентификатор навыка (skill_id)');
         }
 
-        $root = rtrim(Config::get('storage', sys_get_temp_dir() . '/alisa'), '\/');
+        $root = rtrim(Config::get('storage_path', sys_get_temp_dir() . '/alisa'), '\/');
 
-        $this->path = $root . '/' . $this->skillId . '/__sounds__';
+        $this->path = $root . '/' . $this->skillId . '/_sounds';
 
         if (!file_exists($this->path)) {
             mkdir($this->path, recursive: true);

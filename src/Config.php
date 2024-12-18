@@ -10,6 +10,8 @@ class Config
         'skill_id' => null,
         'oauth' => null,
 
+        'storage_path' => null,
+
         'request' => null,
 
         'middlewares' => [],
