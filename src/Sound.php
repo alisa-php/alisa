@@ -22,12 +22,12 @@ class Sound
 
     public function __construct(protected Alisa $alisa)
     {
-        if (!$this->token = Config::get('oauth')) {
-            throw new SoundException('Заполните в конфиге OAuth-токен (token)');
+        if (!$this->token = Config::get('oauth_token')) {
+            throw new SoundException('Заполните в конфиге OAuth-токен [oauth_token]');
         }
 
         if (!$this->skillId = Config::get('skill_id')) {
-            throw new SoundException('Заполните в конфиге идентификатор навыка (skill_id)');
+            throw new SoundException('Заполните в конфиге идентификатор навыка [skill_id]');
         }
 
         $root = rtrim(Config::get('storage_path', sys_get_temp_dir() . '/alisa'), '\/');

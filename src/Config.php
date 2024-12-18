@@ -8,7 +8,7 @@ class Config
 {
     protected static array $config = [
         'skill_id' => null,
-        'oauth' => null,
+        'oauth_token' => null,
 
         'storage_path' => null,
 
