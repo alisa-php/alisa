@@ -29,7 +29,7 @@ class Application extends AbstractSession
      *
      * @return string|null
      */
-    public function getId(): string
+    public static function getId(): string
     {
         return static::$id;
     }

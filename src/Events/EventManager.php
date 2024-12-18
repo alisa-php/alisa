@@ -5,6 +5,7 @@ namespace Alisa\Events;
 use Alisa\Context;
 use Alisa\Events\Traits\WithMiddlewares;
 use Alisa\Http\Request;
+use Alisa\Sessions\Session;
 use Closure;
 
 use function Alisa\Support\Helpers\array_flatten;
@@ -34,11 +35,11 @@ class EventManager
     {
         $pattern = function (Context $context): bool {
             return
-                $context('session.new') === true &&
+                Session::isNew() &&
 
                 // только если команда пустая,
                 // чтобы не пропустить запрос вида: спроси у <навыка> что-нибудь
-                in_array($context('request.command'), [null, ''], strict: true);
+                in_array($context->get('request.command'), [null, ''], strict: true);
         };
 
         return $this->on($pattern, $handler, $priority);
@@ -54,11 +55,16 @@ class EventManager
         return $this->on(['request.payload.__action__' => $action], $handler, $priority);
     }
 
+    public function onAny(Closure|array|string $handler, int $priority = 0): Event
+    {
+        return $this->on('request.type', $handler, $priority);
+    }
+
     public function onIntent(array|string $id, Closure|array|string $handler, int $priority = 0): Event
     {
         $pattern = function (Context $context) use ($id): bool {
             return (bool) array_intersect((array) $id, array_keys(
-                $context('request.nlu.intents', [])
+                $context->get('request.nlu.intents', [])
             ));
         };
 

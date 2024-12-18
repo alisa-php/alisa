@@ -83,9 +83,14 @@ class Context extends Request
      *
      * @return strong|null
      */
-    public function skillId(): ?string
+    public function getSkillId(): ?string
     {
         return $this->get('session.skill_id');
+    }
+
+    public function getMessageId(): int
+    {
+        return $this->get('session.message_id');
     }
 
     /**

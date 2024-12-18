@@ -32,7 +32,7 @@ class User extends AbstractSession
      *
      * @return string
      */
-    public function getId(): string
+    public static function getId(): string
     {
         return static::$id;
     }
@@ -51,7 +51,7 @@ class User extends AbstractSession
      *
      * @return string|null
      */
-    public function getAccessToken(): ?string
+    public static function getAccessToken(): ?string
     {
         return static::$id;
     }

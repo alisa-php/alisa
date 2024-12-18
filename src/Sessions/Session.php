@@ -24,12 +24,12 @@ class Session extends AbstractSession
      *
      * @return string
      */
-    public function getId(): string
+    public static function getId(): string
     {
         return static::$id;
     }
 
-    public function isNew(): bool
+    public static function isNew(): bool
     {
         return static::$isNew;
     }
