@@ -30,7 +30,7 @@ $alisa->onAny(function (Context $ctx) {
 $alisa->run();
 ```
 
-# Документация
+# Документация (WIP)
 
 ## События
 
