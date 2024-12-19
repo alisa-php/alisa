@@ -31,6 +31,24 @@ abstract class AbstractSession
         unset(static::$items[$key]);
     }
 
+    public static function increment(string $key, int|float $amount = 1, int|float $default = 0): int|float
+    {
+        $value = static::get($key, $default) + $amount;
+
+        static::set($key, $value);
+
+        return $value;
+    }
+
+    public static function decrement(string $key, int|float $amount = 1, int|float $default = 0): int|float
+    {
+        $value = static::get($key, $default) - $amount;
+
+        static::set($key, $value);
+
+        return $value;
+    }
+
     public static function count(): int
     {
         return count(static::$items);
