@@ -6,7 +6,6 @@ use Alisa\Config;
 use Alisa\Exceptions\AlisaException;
 use Alisa\Sessions\AbstractSession;
 use Alisa\Sessions\Session;
-use RuntimeException;
 
 class Stage
 {
