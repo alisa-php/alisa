@@ -1,36 +1,25 @@
 {
-  "name": "alisa/alisa",
-  "description": "Разрабатывайте навыки для Алисы без боли с любовью <3",
-  "keywords": [
-    "yandex",
-    "dialogs",
-    "alisa",
-    "alice",
-    "api",
-    "library"
-  ],
-  "license": "MIT",
-  "require": {
-    "php": "^8.1"
-  },
-  "require-dev": {
-    "pestphp/pest": "^2.34",
-    "symfony/var-dumper": "^7.2"
-  },
-  "autoload": {
-    "psr-4": {
-      "Alisa\\": "src/"
+    "name": "alisa/alisa",
+    "description": "Эта библиотека сделает разработку навыков для Алисы на PHP простой и удобной.",
+    "keywords": [
+        "yandex",
+        "dialogs",
+        "alisa",
+        "alice",
+        "api",
+        "library"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "symfony/var-dumper": "^7.2"
     },
-    "files": [
-      "src/Support/Helpers.php"
-    ]
-  },
-  "scripts": {
-    "test": "./vendor/bin/pest"
-  },
-  "config": {
-    "allow-plugins": {
-      "pestphp/pest-plugin": true
+    "autoload": {
+        "psr-4": {
+            "Alisa\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     }
-  }
 }
