@@ -19,7 +19,7 @@
             "Alisa\\": "src/"
         },
         "files": [
-            "src/helpers.php"
+            "helpers.php"
         ]
     }
 }
