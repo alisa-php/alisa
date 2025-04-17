@@ -21,6 +21,11 @@ class Request
         $this->initializeFromInput();
     }
 
+    public function __clone()
+    {
+        $this->data = clone $this->data;
+    }
+
     protected function initializeFromArray(array $data): void
     {
         $this->raw = $data;
@@ -51,6 +56,20 @@ class Request
     public function get(string $key, mixed $default = null): mixed
     {
         return $this->data->get($key, $default);
+    }
+
+    public function set(string $key, mixed $value): static
+    {
+        $this->data->set($key, $value);
+
+        return $this;
+    }
+
+    public function remove(string $key): static
+    {
+        $this->data->remove($key);
+
+        return $this;
     }
 
     public function has(string $key): bool
