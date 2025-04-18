@@ -1,5 +1,6 @@
 <?php
 
+use Alisa\Support\After;
 use Alisa\Support\Pipeline;
 
 /**

@@ -10,8 +10,8 @@ use Alisa\Http\Response;
 use Alisa\Scenes\Scene;
 use Alisa\Scenes\Stage;
 use Alisa\Sessions;
-use Alisa\Sessions\Session;
 use Alisa\Stores;
+use Alisa\Support\After;
 
 class Alisa
 {
@@ -49,6 +49,8 @@ class Alisa
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
+
+        After::run();
     }
 
     protected function resolveCurrentScene(): ?Scene

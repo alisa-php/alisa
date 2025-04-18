@@ -5,6 +5,7 @@ use Alisa\Configuration;
 use Alisa\Context;
 use Alisa\Http\Request;
 use Alisa\Scenes\Scene;
+use Alisa\Support\After;
 
 require __DIR__ . '/../vendor/autoload.php';
 
