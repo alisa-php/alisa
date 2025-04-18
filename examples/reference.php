@@ -42,8 +42,8 @@ $alisa->onScene('feedback', function (Scene $scene) {
         ]);
     });
 
-    $scene->onAction('yes', function (Context $context, FeedbackService $feedbackService) {
-        $feedbackService->save($context->session->get('text'));
+    $scene->onAction('yes', function (Context $context) {
+        FeedbackService::save($context->session->get('text'));
         $context->respond('Спасибо, ваше сообщение отправлено');
         $context->leave();
     });
@@ -64,8 +64,8 @@ $alisa->onScene('form', function (Scene $scene) {
             $context->respond('Как вас зовут?');
         });
 
-        $step->onAny(function (Context $context, FormService $formService) {
-            $formService->add('name', $context->get('request.command'));
+        $step->onAny(function (Context $context) {
+            FormService::add('name', $context->get('request.command'));
             $context->nextStep('phone');
         });
     });
@@ -75,8 +75,8 @@ $alisa->onScene('form', function (Scene $scene) {
             $context->respond('Укажите номер телефона');
         });
 
-        $step->onAny(function (Context $context, FormService $formService) {
-            $formService->add('phone', $context->get('request.command'));
+        $step->onAny(function (Context $context) {
+            FormService::add('phone', $context->get('request.command'));
             $context->nextStep('email');
         });
     });

@@ -7,7 +7,10 @@ use Alisa\Events\HasDialogEvents;
 use Alisa\Events\HasMiddleware;
 use Alisa\Http\Request;
 use Alisa\Http\Response;
+use Alisa\Scenes\Scene;
+use Alisa\Scenes\Stage;
 use Alisa\Sessions;
+use Alisa\Sessions\Session;
 use Alisa\Stores;
 
 class Alisa
@@ -35,7 +38,33 @@ class Alisa
 
     public function dispatch(): void
     {
-        $this->dispatchEvent($this->context);
+        $scene = $this->resolveCurrentScene();
+
+        if ($scene) {
+            $scene->dispatch($this->context);
+        } else {
+            $this->dispatchEvent($this->context);
+        }
+
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
+    }
+
+    protected function resolveCurrentScene(): ?Scene
+    {
+        $sceneId = Sessions\Session::get('__scene__');
+
+        if (!$sceneId) {
+            return null;
+        }
+
+        if (!Stage::has($sceneId)) {
+            Sessions\Session::remove('__scene__');
+            return null;
+        }
+
+        return Stage::get($sceneId);
     }
 
     protected function handlePingRequest(Request $request): void
@@ -75,5 +104,16 @@ class Alisa
         Stores\Middlewares::load($config->get('middlewares', []));
         Stores\Assets::load($config->get('assets', []));
         Stores\Buttons::load($config->get('buttons', []));
+    }
+
+    public function onScene(string $id, callable $callback): static
+    {
+        $scene = new Scene($id);
+
+        Stage::add($scene);
+
+        execute($callback, $scene);
+
+        return $this;
     }
 }

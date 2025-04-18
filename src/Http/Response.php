@@ -21,14 +21,14 @@ class Response
         'version' => '1.0',
     ];
 
-    public function text(string $text): self
+    public function text(string $text): static
     {
         $this->response['response']['text'] = $text;
 
         return $this;
     }
 
-    public function tts(string $tts): self
+    public function tts(string $tts): static
     {
         $this->response['response']['tts'] = $tts;
 
@@ -38,7 +38,7 @@ class Response
     /**
      * @param array|string $buttons
      */
-    public function buttons($buttons): self
+    public function buttons(array|string $buttons): static
     {
         $buttons = is_string($buttons) ? Buttons::get($buttons) : $buttons;
 
@@ -66,14 +66,14 @@ class Response
         );
     }
 
-    public function withCard(AbstractCard $card): self
+    public function withCard(AbstractCard $card): static
     {
         $this->response['response']['card'] = $card->toArray();
 
         return $this;
     }
 
-    public function withAudioPlayer(AudioPlayer $player): self
+    public function withAudioPlayer(AudioPlayer $player): static
     {
         $this->response['response']['should_listen'] = $player->autoplay;
         $this->response['response']['directives']['audio_player'] = $player->toArray();
@@ -81,14 +81,14 @@ class Response
         return $this;
     }
 
-    public function finish(bool $value = true): self
+    public function finish(bool $value = true): static
     {
         $this->response['response']['end_session'] = $value;
 
         return $this;
     }
 
-    public function pong(): self
+    public function pong(): static
     {
         return $this
             ->text('pong')

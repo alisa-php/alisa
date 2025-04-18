@@ -4,6 +4,7 @@ use Alisa\Alisa;
 use Alisa\Configuration;
 use Alisa\Context;
 use Alisa\Http\Request;
+use Alisa\Scenes\Scene;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -15,30 +16,22 @@ $request = new Request(json_decode(file_get_contents(__DIR__ . '/payloads/comman
 
 $alisa = new Alisa($config, $request);
 
-$alisa->listen(['foo' => 'bar'], function (Context $context) {
-    $context->respond('foo === bar');
-})->middleware(function (Context $context, Closure $next) {
-    // $context->respond('[before] foo === bar');
-    // $context->request->set('foo', 'BAAAAAAAR');
-    $next($context);
-    // $context->respond('[after] foo === bar');
-});
-
 $alisa->listen(['request.command' => 'hello world'], function (Context $context) {
-    $context->respond('foo === baz');
-})->middleware(function (Context $context, Closure $next) {
-    // $context->respond('[before] foo === baz');
-    $next($context);
-    // $context->respond('[after] foo === baz');
-});
-
-$alisa->onFallback(function (Context $context) {
-    $context->respond('fallback');
-    dump('[fallback] context: ' . $context->request->get('foo'));
+    $context->enter('foo');
 });
 
 $alisa->onError(function (Context $context, Throwable $exception) {
     $context->respond('[error] ' . $exception->getMessage());
+});
+
+$alisa->onScene('foo', function (Scene $scene) {
+    $scene->onEnter(function (Context $context) {
+        $context->respond('Какая у вас проблема?');
+    });
+
+    $scene->onAny(function (Context $context) {
+        $context->respond('scene foo');
+    });
 });
 
 $alisa->dispatch();
