@@ -6,6 +6,9 @@ use Alisa\Events\HasEvents;
 use Alisa\Events\HasDialogEvents;
 use Alisa\Events\HasMiddleware;
 use Alisa\Http\Request;
+use Alisa\Http\Response;
+use Alisa\Sessions;
+use Alisa\Stores;
 
 class Alisa
 {
@@ -17,15 +20,60 @@ class Alisa
 
     public protected(set) Configuration $config;
 
-    public function __construct(Configuration $config = new Configuration)
+    public protected(set) Context $context;
+
+    public function __construct(Configuration $config = new Configuration, Request $request = new Request)
     {
         $this->config = $config;
+        $this->context = new Context($request);
+
+        $this->handlePingRequest($request);
+        $this->initializeSessions($request);
+        $this->initializeStores($config);
+        $this->configureSkillId($request);
     }
 
-    public function dispatch(Request $request = new Request): void
+    public function dispatch(): void
     {
-        $context = new Context($request);
+        $this->dispatchEvent($this->context);
+    }
 
-        $this->dispatchEvent($context);
+    protected function handlePingRequest(Request $request): void
+    {
+        if ($request->isPing()) {
+            exit((new Response)->pong());
+        }
+    }
+
+    protected function configureSkillId(Request $request): void
+    {
+        if (!$this->config->get('skill_id') && ($skillId = $request->get('session.skill_id'))) {
+            $this->config->set('skill_id', $skillId);
+        }
+    }
+
+    protected function initializeSessions(Request $request): void
+    {
+        /**
+         * @see https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-session
+         */
+        Sessions\Session::initialize($request);
+
+        /**
+         * @see https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-between-sessions
+         */
+        Sessions\User::initialize($request);
+
+        /**
+         * @see https://yandex.ru/dev/dialogs/alice/doc/ru/session-persistence#store-application
+         */
+        Sessions\Application::initialize($request);
+    }
+
+    protected function initializeStores(Configuration $config): void
+    {
+        Stores\Middlewares::load($config->get('middlewares', []));
+        Stores\Assets::load($config->get('assets', []));
+        Stores\Buttons::load($config->get('buttons', []));
     }
 }

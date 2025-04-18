@@ -40,14 +40,14 @@ trait HasEvents
         $processEvents = $this->createEventProcessor();
         $fallbackHandler = $this->createFallbackHandler();
 
-        $pipelineStack = [$processEvents, $fallbackHandler];
+        $callbacks = [$processEvents, $fallbackHandler];
 
         if (property_exists($this, 'middlewares')) {
-            array_unshift($pipelineStack, ...$this->middlewares);
+            array_unshift($callbacks, ...$this->middlewares);
         }
 
         try {
-            pipeline($pipelineStack, $context);
+            pipeline($callbacks, $context);
         } catch (\Throwable $th) {
             if ($this->handlers['error'] !== null) {
                 execute($this->handlers['error'], $context, $th);

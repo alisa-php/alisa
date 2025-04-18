@@ -17,20 +17,14 @@ class Configuration
      * @var array
      */
     protected array $defaults = [
-        'skill_id' => null,
-
+       'skill_id' => null,
         'oauth_token' => null,
-
         'storage' => [
             'path' => null,
         ],
-
         'middlewares' => [],
-
         'components' => [],
-
         'assets' => [],
-
         'buttons' => [],
     ];
 

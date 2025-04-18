@@ -3,6 +3,7 @@
 namespace Alisa\Events;
 
 use Alisa\Context;
+use Alisa\Sessions\Session;
 use Closure;
 
 trait HasDialogEvents
@@ -11,7 +12,7 @@ trait HasDialogEvents
     {
         $pattern = function (Context $context): bool {
             return
-                $context->request->get('session.new') === true &&
+                Session::isNew() &&
 
                 // только если команда пустая,
                 // чтобы не пропустить запрос вида: спроси у <навыка> что-нибудь

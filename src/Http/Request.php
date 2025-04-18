@@ -2,6 +2,11 @@
 
 namespace Alisa\Http;
 
+use Alisa\Entities\DatetimeEntity;
+use Alisa\Entities\Entity;
+use Alisa\Entities\FioEntity;
+use Alisa\Entities\GeoEntity;
+use Alisa\Entities\NumberEntity;
 use Alisa\Exceptions\AlisaException;
 use Alisa\Support\Collection;
 
@@ -15,15 +20,33 @@ class Request
     {
         if (!empty($data)) {
             $this->initializeFromArray($data);
-            return;
+        } else {
+            $this->initializeFromInput();
         }
 
-        $this->initializeFromInput();
+        $this->mapEntities();
     }
 
     public function __clone()
     {
         $this->data = clone $this->data;
+    }
+
+    /**
+     * @see https://yandex.ru/dev/dialogs/alice/doc/naming-entities.html
+     * @return void
+     */
+    protected function mapEntities(): void
+    {
+        foreach ($this->get('request.nlu.entities', []) as $key => $entity) {
+            $this->set('request.nlu.entities.' . $key, match ($entity['type']) {
+                'YANDEX.FIO' => new FioEntity($entity),
+                'YANDEX.GEO' => new GeoEntity($entity),
+                'YANDEX.NUMBER' => new NumberEntity($entity),
+                'YANDEX.DATETIME' => new DatetimeEntity($entity),
+                default => new Entity($entity),
+            });
+        }
     }
 
     protected function initializeFromArray(array $data): void
@@ -75,5 +98,17 @@ class Request
     public function has(string $key): bool
     {
         return $this->data->has($key);
+    }
+
+    /**
+     * @see https://yandex.ru/dev/dialogs/alice/doc/ru/health-check
+     *
+     * @return bool
+     */
+    public function isPing(): bool
+    {
+        return
+            $this->data->get('request.original_utterance') === 'ping' &&
+            $this->data->get('request.type') === 'SimpleUtterance';
     }
 }
