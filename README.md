@@ -29,7 +29,3 @@ $alisa->onCommand('пока', function (Context $context) {
 
 $alisa->dispatch();
 ```
-
-## Лицензия
-
-MIT License
