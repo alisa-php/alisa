@@ -47,6 +47,10 @@ $alisa->onScene('foo', function (Scene $scene) {
     $scene->onFallback(function (Context $context) {
         $context->respond('scene foo fallback');
     });
+})->middleware(function ($c, $next) {
+    dump('scene foo before');
+    $next($c);
+    dump('scene foo after');
 });
 
 $alisa->dispatch();

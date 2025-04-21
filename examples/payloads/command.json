@@ -40,7 +40,7 @@
     },
     "state": {
       "session": {
-        "__scene__": "sfoo"
+        "__scene__": "foo"
       },
       "user": {},
       "application": {}
