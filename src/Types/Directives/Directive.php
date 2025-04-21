@@ -1,6 +1,6 @@
 <?php
 
-namespace Alisa\Directives;
+namespace Alisa\Types\Directives;
 
 abstract class Directive
 {

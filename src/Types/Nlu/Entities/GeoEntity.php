@@ -1,32 +1,33 @@
 <?php
 
-namespace Alisa\Entities;
+namespace Alisa\Types\Nlu\Entities;
 
 class GeoEntity extends Entity
 {
-    public function country(): ?string
+    public function country(mixed $default = null): ?string
     {
-        return $this->entity['value']['country'] ?? null;
+        return $this->value('country', $default);
     }
 
-    public function city(): ?string
+    public function city(mixed $default = null): ?string
     {
-        return $this->entity['value']['city'] ?? null;
+        return $this->data['value']['city'] ?? null;
+        return $this->value('city', $default);
     }
 
-    public function street(): ?string
+    public function street(mixed $default = null): ?string
     {
-        return $this->entity['value']['street'] ?? null;
+        return $this->value('street', $default);
     }
 
-    public function houseNumber(): ?string
+    public function houseNumber(mixed $default = null): ?string
     {
-        return $this->entity['value']['house_number'] ?? null;
+        return $this->value('house_number', $default);
     }
 
-    public function airport(): ?string
+    public function airport(mixed $default = null): ?string
     {
-        return $this->entity['value']['airport'] ?? null;
+        return $this->value('airport', $default);
     }
 
     public function fullAddress(): ?string

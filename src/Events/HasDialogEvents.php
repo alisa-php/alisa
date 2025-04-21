@@ -41,7 +41,7 @@ trait HasDialogEvents
     {
         $pattern = function (Context $context) use ($id): bool {
             return (bool) array_intersect((array) $id, array_keys(
-                $context->request->get('request.nlu.intents', [])
+                $context->request->get('request.nlu.intents')->toArray()
             ));
         };
 

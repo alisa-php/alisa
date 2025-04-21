@@ -2,7 +2,7 @@
 
 namespace Alisa;
 
-use Alisa\Directives\AudioPlayer\AudioPlayer;
+use Alisa\Types\Directives\AudioPlayer\AudioPlayer;
 use Alisa\Exceptions\AlisaException;
 use Alisa\Http\Request;
 use Alisa\Http\Response;
@@ -12,6 +12,9 @@ use Alisa\Sessions\Session;
 use Alisa\Sessions\User;
 use Alisa\Support\Render;
 use Alisa\Types\Card\AbstractCard;
+use Alisa\Types\Nlu\Entities\Entities;
+use Alisa\Types\Nlu\Intents\Intents;
+use Alisa\Types\Nlu\Tokens\Tokens;
 
 class Context
 {
@@ -23,12 +26,23 @@ class Context
 
     public protected(set) Application $application;
 
+    public protected(set) Tokens $tokens;
+
+    public protected(set) Entities $entities;
+
+    public protected(set) Intents $intents;
+
     public function __construct(Request $request)
     {
         $this->request = $request;
+
         $this->session = new Session;
         $this->user = new User;
         $this->application = new Application;
+
+        $this->tokens = $request->get('request.nlu.tokens');
+        $this->entities = $request->get('request.nlu.entities');
+        $this->intents = $request->get('request.nlu.intents');
     }
 
     public function __clone()
@@ -57,17 +71,17 @@ class Context
             'tts' => $tts ?? $text,
         ]);
 
-        $render = new Response;
+        $response = new Response;
 
         if ($type instanceof AbstractCard) {
-            $render->withCard($type);
+            $response->withCard($type);
         }
 
         if ($type instanceof AudioPlayer) {
-            $render->withAudioPlayer($type);
+            $response->withAudioPlayer($type);
         }
 
-        echo $render
+        echo $response
             ->text($processed['text'])
             ->tts($processed['tts'])
             ->finish($finish);

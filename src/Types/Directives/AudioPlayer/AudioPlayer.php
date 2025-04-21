@@ -1,8 +1,8 @@
 <?php
 
-namespace Alisa\Directives\AudioPlayer;
+namespace Alisa\Types\Directives\AudioPlayer;
 
-use Alisa\Directives\Directive;
+use Alisa\Types\Directives\Directive;
 
 class AudioPlayer extends Directive
 {

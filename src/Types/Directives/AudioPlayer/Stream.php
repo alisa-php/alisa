@@ -1,6 +1,6 @@
 <?php
 
-namespace Alisa\Directives\AudioPlayer;
+namespace Alisa\Types\Directives\AudioPlayer;
 
 class Stream
 {

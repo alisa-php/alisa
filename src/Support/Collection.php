@@ -135,7 +135,7 @@ class Collection implements ArrayAccess, Countable, JsonSerializable
             return $results;
         }
 
-        return $default;
+        return execute($default);
     }
 
     /**

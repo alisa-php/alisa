@@ -2,57 +2,72 @@
 
 namespace Alisa\Http;
 
-use Alisa\Entities\DatetimeEntity;
-use Alisa\Entities\Entity;
-use Alisa\Entities\FioEntity;
-use Alisa\Entities\GeoEntity;
-use Alisa\Entities\NumberEntity;
 use Alisa\Exceptions\AlisaException;
+use Alisa\Types\Nlu\Entities\Entities;
+use Alisa\Types\Nlu\Intents\Intents;
+use Alisa\Types\Nlu\Tokens\Tokens;
 use Alisa\Support\Collection;
 
 class Request
 {
-    protected Collection $data;
+    protected Collection $payload;
 
     public protected(set) array $raw;
 
-    public function __construct(array $data = [])
+    public function __construct(array $payload = [])
     {
-        if (!empty($data)) {
-            $this->initializeFromArray($data);
+        if (!empty($payload)) {
+            $this->initializeFromArray($payload);
         } else {
             $this->initializeFromInput();
         }
 
-        $this->mapEntities();
+        $this->mapNluTokens();
+        $this->mapNluEntities();
+        $this->mapNluIntents();
     }
 
     public function __clone()
     {
-        $this->data = clone $this->data;
+        $this->payload = clone $this->payload;
     }
 
     /**
-     * @see https://yandex.ru/dev/dialogs/alice/doc/naming-entities.html
      * @return void
      */
-    protected function mapEntities(): void
+    protected function mapNluTokens(): void
     {
-        foreach ($this->get('request.nlu.entities', []) as $key => $entity) {
-            $this->set('request.nlu.entities.' . $key, match ($entity['type']) {
-                'YANDEX.FIO' => new FioEntity($entity),
-                'YANDEX.GEO' => new GeoEntity($entity),
-                'YANDEX.NUMBER' => new NumberEntity($entity),
-                'YANDEX.DATETIME' => new DatetimeEntity($entity),
-                default => new Entity($entity),
-            });
-        }
+        $tokens = new Tokens($this->get('request.nlu.tokens', []));
+
+        $this->set('request.nlu.tokens', $tokens);
     }
 
-    protected function initializeFromArray(array $data): void
+    /**
+     * @see https://yandex.ru/dev/dialogs/alice/doc/ru/nlu#concept_nxd_wdj_2kb
+     * @return void
+     */
+    protected function mapNluEntities(): void
     {
-        $this->raw = $data;
-        $this->data = new Collection($data);
+        $intents = new Entities($this->get('request.nlu.entities', []));
+
+        $this->set('request.nlu.entities', $intents);
+    }
+
+    /**
+     * @see https://yandex.ru/dev/dialogs/alice/doc/ru/word-processing
+     * @return void
+     */
+    protected function mapNluIntents(): void
+    {
+        $intents = new Intents($this->get('request.nlu.intents', []));
+
+        $this->set('request.nlu.intents', $intents);
+    }
+
+    protected function initializeFromArray(array $payload): void
+    {
+        $this->raw = $payload;
+        $this->payload = new Collection($payload);
     }
 
     /**
@@ -66,38 +81,38 @@ class Request
             throw new AlisaException('👋 Все хорошо, но запрос не содержит данных');
         }
 
-        $data = json_decode($input, true);
+        $payload = json_decode($input, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new AlisaException('Некорректный JSON в запросе: ' . json_last_error_msg());
         }
 
-        $this->raw = $data;
-        $this->data = new Collection($data);
+        $this->raw = $payload;
+        $this->payload = new Collection($payload);
     }
 
     public function get(string $key, mixed $default = null): mixed
     {
-        return $this->data->get($key, $default);
+        return $this->payload->get($key, $default);
     }
 
     public function set(string $key, mixed $value): static
     {
-        $this->data->set($key, $value);
+        $this->payload->set($key, $value);
 
         return $this;
     }
 
     public function remove(string $key): static
     {
-        $this->data->remove($key);
+        $this->payload->remove($key);
 
         return $this;
     }
 
     public function has(string $key): bool
     {
-        return $this->data->has($key);
+        return $this->payload->has($key);
     }
 
     /**
@@ -108,7 +123,7 @@ class Request
     public function isPing(): bool
     {
         return
-            $this->data->get('request.original_utterance') === 'ping' &&
-            $this->data->get('request.type') === 'SimpleUtterance';
+            $this->payload->get('request.original_utterance') === 'ping' &&
+            $this->payload->get('request.type') === 'SimpleUtterance';
     }
 }

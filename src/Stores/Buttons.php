@@ -26,6 +26,6 @@ class Buttons extends AbstractStore
      */
     public static function get(string $alias, mixed $default = null): mixed
     {
-        return static::$items[$alias] ?? $default;
+        return static::$items[$alias] ?? execute($default);
     }
 }

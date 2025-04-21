@@ -39,9 +39,7 @@
       "type": "SimpleUtterance"
     },
     "state": {
-      "session": {
-        "already_call": true
-      },
+      "session": {},
       "user": {},
       "application": {}
     },

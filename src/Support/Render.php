@@ -143,7 +143,7 @@ class Render
     public static function apply(array $value, array $methods): array
     {
         $callbacks = array_map(
-            fn(string $method) => fn(array $value) => self::$method($value),
+            fn(string $method) => [self::class, $method],
             $methods
         );
 

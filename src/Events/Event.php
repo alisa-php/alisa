@@ -71,20 +71,17 @@ class Event
         return false;
     }
 
-    protected function matchClosure(Context $context, mixed $value): bool
+    protected function matchClosure(Context $context, mixed $closure): bool
     {
-        if (!($value instanceof Closure)) {
+        if (!($closure instanceof Closure)) {
             return false;
         }
 
-        $parameters = call_user_func($value, $context);
-
-        if ($parameters) {
-            $this($context, is_array($parameters) ? $parameters : []);
-            return true;
+        if ($closure($context)) {
+            $this($context);
         }
 
-        return false;
+        return true;
     }
 
     protected function matchDirectContextValue(Context $context, mixed $segments, mixed $value): bool
@@ -107,8 +104,6 @@ class Event
             $this($context);
             return true;
         }
-
-
 
         $pattern = $this->createPatternFromString($value);
 

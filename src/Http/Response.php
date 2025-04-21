@@ -2,7 +2,7 @@
 
 namespace Alisa\Http;
 
-use Alisa\Directives\AudioPlayer\AudioPlayer;
+use Alisa\Types\Directives\AudioPlayer\AudioPlayer;
 use Alisa\Sessions\Application;
 use Alisa\Sessions\Session;
 use Alisa\Sessions\User;
@@ -68,15 +68,32 @@ class Response
 
     public function withCard(AbstractCard $card): static
     {
-        $this->response['response']['card'] = $card->toArray();
+        $this->withCustom([
+            'response' => [
+                'card' => $card->toArray(),
+            ],
+        ]);
 
         return $this;
     }
 
     public function withAudioPlayer(AudioPlayer $player): static
     {
-        $this->response['response']['should_listen'] = $player->autoplay;
-        $this->response['response']['directives']['audio_player'] = $player->toArray();
+        $this->withCustom([
+            'response' => [
+                'should_listen' => $player->autoplay,
+                'directives' => [
+                    'audio_player' => $player->toArray(),
+                ],
+            ],
+        ]);
+
+        return $this;
+    }
+
+    public function withCustom(array $data = []): static
+    {
+        array_replace_recursive($this->response, $data);
 
         return $this;
     }

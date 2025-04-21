@@ -1,0 +1,50 @@
+<?php
+
+namespace Alisa\Support;
+
+use Alisa\Configuration;
+
+class Storage
+{
+    protected string $path;
+
+    public function __construct(?string $path = null)
+    {
+        if (!$path) {
+            $folder = Configuration::get('skill_id') ?: '_common';
+            $this->path = trim(sys_get_temp_dir() . '/alisa/' . $folder . '/', '\/');
+        } else {
+            $this->path = rtrim($path, '\/');
+        }
+
+        if (!file_exists($this->path)) {
+            mkdir($this->path, recursive: true);
+        }
+    }
+
+    public function set(string $key, mixed $value): static
+    {
+        file_put_contents($this->path . '/' . $key, json_encode($value), LOCK_EX);
+
+        return $this;
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        if (!$this->has($key)) {
+            return execute($default);
+        }
+
+        return json_decode(file_get_contents($this->path . '/' . $key), true);
+    }
+
+    public function has(string $key): bool
+    {
+        return file_exists($this->path . '/' . $key);
+    }
+
+    public function remove(string $key): bool
+    {
+        return unlink($this->path . '/' . $key);
+    }
+}

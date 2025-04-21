@@ -9,16 +9,17 @@ class Configuration
      *
      * @var array
      */
-    protected array $values = [];
+    protected static array $values = [];
 
     /**
      * Значения по умолчанию
      *
      * @var array
      */
-    protected array $defaults = [
-       'skill_id' => null,
+    protected static array $defaults = [
+        'skill_id' => null,
         'oauth_token' => null,
+        'fake_request' => null,
         'storage' => [
             'path' => null,
         ],
@@ -28,34 +29,26 @@ class Configuration
         'buttons' => [],
     ];
 
-    /**
-     * @param array $values
-     * @return static
-     */
     public function __construct(array $values = [])
     {
-        $this->load($values);
+        self::$values = array_replace_recursive(self::$defaults, $values);
     }
 
     /**
      * @param array $values
      * @return static
      */
-    public function load(array $values): static
+    public static function load(array $values): void
     {
-        $this->values = array_replace_recursive($this->defaults, $values);
-
-        return $this;
+        self::$values = array_replace_recursive(self::$defaults, $values);
     }
 
     /**
      * @return static
      */
-    public function reset(): static
+    public static function reset(): void
     {
-        $this->values = $this->defaults;
-
-        return $this;
+        self::$values = self::$defaults;
     }
 
     /**
@@ -63,17 +56,17 @@ class Configuration
      * @param mixed $default
      * @return mixed
      */
-    public function get(string $key, mixed $default = null): mixed
+    public static function get(string $key, mixed $default = null): mixed
     {
         $segments = explode('.', $key);
 
-        $value = $this->values;
+        $value = self::$values;
 
         foreach ($segments as $segment) {
-            if (is_array($value) && array_key_exists($segment, $value)) {
+            if (is_array($value) && array_key_exists($segment, $value) && $value[$segment] !== null) {
                 $value = $value[$segment];
             } else {
-                return $default;
+                return execute($default);
             }
         }
 
@@ -85,11 +78,11 @@ class Configuration
      * @param mixed $value
      * @return static
      */
-    public function set(string $key, mixed $value): static
+    public static function set(string $key, mixed $value): void
     {
         $segments = explode('.', $key);
 
-        $reference = &$this->values;
+        $reference = &self::$values;
 
         foreach ($segments as $segment) {
             if (!isset($reference[$segment]) || !is_array($reference[$segment])) {
@@ -100,19 +93,17 @@ class Configuration
         }
 
         $reference = $value;
-
-        return $this;
     }
 
     /**
      * @param mixed $key
      * @return bool
      */
-    public function has(string $key): bool
+    public static function has(string $key): bool
     {
         $segments = explode('.', $key);
 
-        $value = $this->values;
+        $value = self::$values;
 
         foreach ($segments as $segment) {
             if (!is_array($value) || !array_key_exists($segment, $value)) {
@@ -129,31 +120,31 @@ class Configuration
      * @param mixed $key
      * @return static
      */
-    public function remove(string $key): static
+    public static function remove(string $key): void
     {
         $segments = explode('.', $key);
-        $reference = &$this->values;
+        $reference = &self::$values;
 
         foreach ($segments as $index => $segment) {
             if (!isset($reference[$segment]) || !is_array($reference[$segment])) {
-                return $this;
+                return;
             }
 
             if ($index === count($segments) - 1) {
                 unset($reference[$segment]);
-                return $this;
+                return;
             }
 
             $reference = &$reference[$segment];
         }
 
-        return $this;
+        return;
     }
 
     /**
      * @return array
      */
-    public function all(): array
+    public static function all(): array
     {
         return static::toArray();
     }
@@ -161,8 +152,8 @@ class Configuration
     /**
      * @return array
      */
-    public function toArray(): array
+    public static function toArray(): array
     {
-        return $this->values;
+        return self::$values;
     }
 }

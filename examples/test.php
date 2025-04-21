@@ -3,36 +3,40 @@
 use Alisa\Alisa;
 use Alisa\Configuration;
 use Alisa\Context;
-use Alisa\Http\Request;
-use Alisa\Scenes\Scene;
-use Alisa\Support\After;
+use Alisa\Support\Render;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $config = new Configuration([
-    //
+    'payload' => __DIR__ . '/payloads/intent.json',
 ]);
 
-$request = new Request(json_decode(file_get_contents(__DIR__ . '/payloads/command.json'), true));
+$alisa = new Alisa($config);
 
-$alisa = new Alisa($config, $request);
+// $alisa->listen(['request.command' => 'hello world'], function (Context $context) {
+//     $context->enter('foo');
+// });
 
-$alisa->listen(['request.command' => 'hello world'], function (Context $context) {
-    $context->enter('foo');
+// $alisa->onIntent(['MONSTER.SEARCH'], function (Context $context) {
+//     $context->respond('MONSTER.SEARCH!!!!!');
+// });
+
+$alisa->onAny(function (Context $context) {
+    $context->respond('any {pause:1000} {2: арбуз, арбуза, арбузов}');
 });
 
-$alisa->onError(function (Context $context, Throwable $exception) {
-    $context->respond('[error] ' . $exception->getMessage());
-});
+// $alisa->onError(function (Context $context, Throwable $exception) {
+//     $context->respond('[error] ' . $exception->getMessage());
+// });
 
-$alisa->onScene('foo', function (Scene $scene) {
-    $scene->onEnter(function (Context $context) {
-        $context->respond('Какая у вас проблема?');
-    });
+// $alisa->onScene('foo', function (Scene $scene) {
+//     $scene->onEnter(function (Context $context) {
+//         $context->respond('Какая у вас проблема?');
+//     });
 
-    $scene->onAny(function (Context $context) {
-        $context->respond('scene foo');
-    });
-});
+//     $scene->onAny(function (Context $context) {
+//         $context->respond('scene foo');
+//     });
+// });
 
 $alisa->dispatch();

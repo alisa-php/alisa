@@ -64,9 +64,12 @@ function pipeline(array $callbacks, mixed $input) {
  * @param mixed $handler Обработчик, который нужно вызвать
  * @param mixed ...$parameters Параметры для передачи обработчику
  * @return mixed Результат вызова обработчика
- * @throws InvalidArgumentException Если обработчик не может быть вызван
  */
 function execute($handler, ...$parameters): mixed {
+    if (!$handler) {
+        return $handler;
+    }
+
     if ($handler instanceof Closure || method_exists($handler, '__invoke')) {
         return $handler(...$parameters);
     }
@@ -94,7 +97,7 @@ function execute($handler, ...$parameters): mixed {
         }
     }
 
-    throw new InvalidArgumentException('Невозможно выполнить вызов обработчика');
+    return $handler;
 }
 
 function plural(float|int $count, array $forms): string
@@ -102,4 +105,9 @@ function plural(float|int $count, array $forms): string
     $one = $count % 10 == 1 && $count % 100 != 11 ? 0 : ($count % 10 >= 2 && $count % 10 <= 4 && ($count % 100 < 10 || $count % 100 >= 20) ? 1 : 2);
 
     return $count . ' ' . $forms[$one];
+}
+
+function after(Closure|array|string $callback, array $arguments = [], int $priority = 0): void
+{
+    After::add($callback, $arguments, $priority);
 }

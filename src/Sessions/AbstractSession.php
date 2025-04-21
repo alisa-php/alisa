@@ -22,7 +22,7 @@ abstract class AbstractSession
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        return static::$items[$key] ?? $default;
+        return static::$items[$key] ?? execute($default);
     }
 
     public static function has(string $key): bool

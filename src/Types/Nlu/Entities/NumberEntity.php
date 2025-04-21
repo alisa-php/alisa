@@ -1,16 +1,16 @@
 <?php
 
-namespace Alisa\Entities;
+namespace Alisa\Types\Nlu\Entities;
 
 class NumberEntity extends Entity
 {
     public function toNumber(): int
     {
-        return (int) $this->entity['value'];
+        return (int) $this->value();
     }
 
     public function toFloat(int $percision = 2, int $mode = PHP_ROUND_HALF_UP): float
     {
-        return (float) round($this->entity['value'], $percision, $mode);
+        return (float) round($this->value(), $percision, $mode);
     }
 }

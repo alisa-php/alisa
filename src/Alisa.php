@@ -5,13 +5,17 @@ namespace Alisa;
 use Alisa\Events\HasEvents;
 use Alisa\Events\HasDialogEvents;
 use Alisa\Events\HasMiddleware;
+use Alisa\Exceptions\AlisaException;
 use Alisa\Http\Request;
 use Alisa\Http\Response;
 use Alisa\Scenes\Scene;
 use Alisa\Scenes\Stage;
+use Alisa\Services\Image;
+use Alisa\Services\Sound;
 use Alisa\Sessions;
 use Alisa\Stores;
 use Alisa\Support\After;
+use Alisa\Support\Storage;
 
 class Alisa
 {
@@ -25,15 +29,44 @@ class Alisa
 
     public protected(set) Context $context;
 
-    public function __construct(Configuration $config = new Configuration, Request $request = new Request)
+    public protected(set) Request $request;
+
+    public protected(set) ?Image $image = null;
+
+    public protected(set) ?Sound $sound = null;
+
+    public protected(set) Storage $storage;
+
+    public function __construct(Configuration $config = new Configuration)
     {
         $this->config = $config;
+
+        if ($config->has('payload')) {
+            $payloadPath = $config->get('payload');
+
+            if (!file_exists($payloadPath)) {
+                throw new AlisaException('Файл запроса не существует: ' . $payloadPath);
+            }
+
+            $request = new Request(json_decode(file_get_contents($payloadPath), true));
+        } else {
+            $request = new Request;
+        }
+
+        $this->request = $request;
         $this->context = new Context($request);
 
         $this->handlePingRequest($request);
         $this->initializeSessions($request);
         $this->initializeStores($config);
         $this->configureSkillId($request);
+
+        if ($token = $config->get('token')) {
+            $this->image = new Image($token, $config->get('skill_id'));
+            $this->sound = new Sound($token, $config->get('skill_id'));
+        }
+
+        $this->storage = new Storage($config->get('storage_path'));
     }
 
     public function dispatch(): void
