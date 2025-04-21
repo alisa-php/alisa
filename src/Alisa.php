@@ -19,6 +19,7 @@ use Alisa\Stores\Buttons;
 use Alisa\Stores\Middlewares;
 use Alisa\Support\After;
 use Alisa\Support\Getter;
+use Alisa\Support\Pipeline;
 use Alisa\Support\Storage;
 
 class Alisa
@@ -70,7 +71,7 @@ class Alisa
             $this->sound = new Sound($token, $config->get('skill_id'));
         }
 
-        $this->storage = new Storage($config->get('storage_path'));
+        $this->storage = new Storage($config->get('storage'));
 
         Assets::load($config->get('assets', []));
         Buttons::load($config->get('buttons', []));
@@ -84,7 +85,8 @@ class Alisa
         $scene = $this->resolveCurrentScene();
 
         if ($scene) {
-            $scene->dispatch($this->context);
+            $callbacks = [...$this->middlewares, fn ($context) => $scene->dispatch($context)];
+            Pipeline::make($callbacks)->process($this->context);
         } else {
             $this->dispatchEvent($this->context);
         }

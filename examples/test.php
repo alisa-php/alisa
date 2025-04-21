@@ -3,11 +3,12 @@
 use Alisa\Alisa;
 use Alisa\Configuration;
 use Alisa\Context;
+use Alisa\Scenes\Scene;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $config = new Configuration([
-    'payload' => __DIR__ . '/payloads/intent.json',
+    'payload' => __DIR__ . '/payloads/command.json',
 ]);
 
 $alisa = new Alisa($config);
@@ -28,14 +29,24 @@ $alisa->onAny(function (Context $context) {
 //     $context->respond('[error] ' . $exception->getMessage());
 // });
 
-// $alisa->onScene('foo', function (Scene $scene) {
-//     $scene->onEnter(function (Context $context) {
-//         $context->respond('Какая у вас проблема?');
-//     });
+$alisa->middleware(function ($c, $next) {
+    dump('global before');
+    $next($c);
+    dump('global after');
+});
 
-//     $scene->onAny(function (Context $context) {
-//         $context->respond('scene foo');
-//     });
-// });
+$alisa->onScene('foo', function (Scene $scene) {
+    $scene->onEnter(function (Context $context) {
+        $context->respond('Какая у вас проблема?');
+    });
+
+    $scene->onAny(function (Context $context) {
+        $context->respond('scene foo');
+    });
+
+    $scene->onFallback(function (Context $context) {
+        $context->respond('scene foo fallback');
+    });
+});
 
 $alisa->dispatch();

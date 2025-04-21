@@ -39,7 +39,9 @@
       "type": "SimpleUtterance"
     },
     "state": {
-      "session": {},
+      "session": {
+        "__scene__": "sfoo"
+      },
       "user": {},
       "application": {}
     },

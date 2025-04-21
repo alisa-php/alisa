@@ -20,9 +20,7 @@ class Configuration
         'skill_id' => null,
         'oauth_token' => null,
         'payload' => null,
-        'storage' => [
-            'path' => null,
-        ],
+        'storage' => null,
         'middlewares' => [],
         'components' => [],
         'assets' => [],
