@@ -13,7 +13,7 @@ $config = new Configuration([
 
 $alisa = new Alisa($config);
 
-// $alisa->listen(['request.command' => 'hello world'], function (Context $context) {
+// $alisa->on(['request.command' => 'hello world'], function (Context $context) {
 //     $context->enter('foo');
 // });
 

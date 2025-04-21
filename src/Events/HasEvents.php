@@ -13,7 +13,7 @@ trait HasEvents
         'error' => null,
     ];
 
-    public function listen(
+    public function on(
         Closure|string|array $pattern,
         Closure|array|string $handler,
         int $priority = 0

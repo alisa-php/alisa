@@ -19,22 +19,22 @@ trait HasDialogEvents
                 in_array($context->request->get('request.command'), [null, ''], strict: true);
         };
 
-        return $this->listen($pattern, $handler, $priority);
+        return $this->on($pattern, $handler, $priority);
     }
 
     public function onCommand(array|string $command, Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.command' => $command], $handler, $priority);
+        return $this->on(['request.command' => $command], $handler, $priority);
     }
 
     public function onAction(array|string $action, Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.payload.__action__' => $action], $handler, $priority);
+        return $this->on(['request.payload.__action__' => $action], $handler, $priority);
     }
 
     public function onAny(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen('request.type', $handler, $priority);
+        return $this->on('request.type', $handler, $priority);
     }
 
     public function onIntent(array|string $id, Closure|array|string $handler, int $priority = 0): Event
@@ -45,7 +45,7 @@ trait HasDialogEvents
             ));
         };
 
-        return $this->listen($pattern, $handler, $priority);
+        return $this->on($pattern, $handler, $priority);
     }
 
     public function onConfirm(Closure|array|string $handler, int $priority = 0): Event
@@ -75,41 +75,41 @@ trait HasDialogEvents
 
     public function onDangerous(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.markup.dangerous_context' => true], $handler, $priority);
+        return $this->on(['request.markup.dangerous_context' => true], $handler, $priority);
     }
 
     public function onPurchaseConfirmation(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.type' => 'Purchase.Confirmation'], $handler, $priority);
+        return $this->on(['request.type' => 'Purchase.Confirmation'], $handler, $priority);
     }
 
     public function onShowPull(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.type' => 'Show.Pull'], $handler, $priority);
+        return $this->on(['request.type' => 'Show.Pull'], $handler, $priority);
     }
 
     public function onAudioPlayerPlaybackStarted(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.type' => 'AudioPlayer.PlaybackStarted'], $handler, $priority);
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackStarted'], $handler, $priority);
     }
 
     public function onAudioPlayerPlaybackFinished(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.type' => 'AudioPlayer.PlaybackFinished'], $handler, $priority);
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackFinished'], $handler, $priority);
     }
 
     public function onAudioPlayerPlaybackNearlyFinished(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.type' => 'AudioPlayer.PlaybackNearlyFinished'], $handler, $priority);
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackNearlyFinished'], $handler, $priority);
     }
 
     public function onAudioPlayerPlaybackStopped(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.type' => 'AudioPlayer.PlaybackStopped'], $handler, $priority);
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackStopped'], $handler, $priority);
     }
 
     public function onAudioPlayerPlaybackFailed(Closure|array|string $handler, int $priority = 0): Event
     {
-        return $this->listen(['request.type' => 'AudioPlayer.PlaybackFailed'], $handler, $priority);
+        return $this->on(['request.type' => 'AudioPlayer.PlaybackFailed'], $handler, $priority);
     }
 }
