@@ -174,14 +174,12 @@ class Alisa
         Stores\Buttons::load($config->get('buttons', []));
     }
 
-    public function onScene(string $id, callable $callback): static
+    public function onScene(string $id, callable $callback): void
     {
         $scene = new Scene($id);
 
         Stage::add($scene);
 
         execute($callback, $scene);
-
-        return $this;
     }
 }
