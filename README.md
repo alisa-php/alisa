@@ -17,7 +17,7 @@ composer require alisa/alisa
 ```php
 use Alisa\Alisa;
 
-$alisa = new Alisa();
+$alisa = new Alisa;
 
 $alisa->onStart(function (Context $context) {
     $context->respond('Привет!');
