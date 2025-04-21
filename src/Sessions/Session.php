@@ -10,11 +10,14 @@ class Session extends AbstractSession
 
     protected static bool $isNew;
 
+    protected static ?int $messageId;
+
     protected static array $items = [];
 
     public static function initialize(Request $request): void
     {
         static::$id = $request->get('session.session_id');
+        static::$messageId = $request->get('session.message_id');
         static::$isNew = $request->get('session.new') === true;
         static::load($request->get('state.session', []));
     }

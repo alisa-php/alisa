@@ -7,6 +7,7 @@ use Alisa\Types\Nlu\Entities\Entities;
 use Alisa\Types\Nlu\Intents\Intents;
 use Alisa\Types\Nlu\Tokens\Tokens;
 use Alisa\Support\Collection;
+use Alisa\Types\Meta\Interfaces;
 
 class Request
 {
@@ -22,6 +23,7 @@ class Request
             $this->initializeFromInput();
         }
 
+        $this->mapMetaInterfaces();
         $this->mapNluTokens();
         $this->mapNluEntities();
         $this->mapNluIntents();
@@ -30,6 +32,18 @@ class Request
     public function __clone()
     {
         $this->payload = clone $this->payload;
+    }
+
+    /**
+     * @see https://yandex.ru/dev/dialogs/alice/doc/ru/request#interfaces-desc
+     *
+     * @return void
+     */
+    protected function mapMetaInterfaces(): void
+    {
+        $interfaces = new Interfaces($this->get('meta.interfaces', []));
+
+        $this->set('meta.interfaces', $interfaces);
     }
 
     /**

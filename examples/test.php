@@ -3,7 +3,6 @@
 use Alisa\Alisa;
 use Alisa\Configuration;
 use Alisa\Context;
-use Alisa\Support\Render;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -22,7 +21,7 @@ $alisa = new Alisa($config);
 // });
 
 $alisa->onAny(function (Context $context) {
-    $context->respond('any {pause:1000} {2: арбуз, арбуза, арбузов}');
+    $context->respond('any {tts: Привет} {pause:1000} {2: арбуз, арбуза, арбузов}');
 });
 
 // $alisa->onError(function (Context $context, Throwable $exception) {

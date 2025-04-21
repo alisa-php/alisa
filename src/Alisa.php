@@ -14,7 +14,11 @@ use Alisa\Services\Image;
 use Alisa\Services\Sound;
 use Alisa\Sessions;
 use Alisa\Stores;
+use Alisa\Stores\Assets;
+use Alisa\Stores\Buttons;
+use Alisa\Stores\Middlewares;
 use Alisa\Support\After;
+use Alisa\Support\Getter;
 use Alisa\Support\Storage;
 
 class Alisa
@@ -67,6 +71,12 @@ class Alisa
         }
 
         $this->storage = new Storage($config->get('storage_path'));
+
+        Assets::load($config->get('assets', []));
+        Buttons::load($config->get('buttons', []));
+        Middlewares::load($config->get('middlewares', []));
+
+        $this->registerComponents($this->config->get('components'));
     }
 
     public function dispatch(): void
@@ -113,6 +123,27 @@ class Alisa
     {
         if (!$this->config->get('skill_id') && ($skillId = $request->get('session.skill_id'))) {
             $this->config->set('skill_id', $skillId);
+        }
+    }
+
+    public function registerComponents(array $components): void
+    {
+        foreach ($components as $key => $value) {
+            // [Component::class]
+            if (is_numeric($key) && is_string($value)) {
+                $component = new $value();
+            }
+
+            // [Component::class, ['foo' => 'bar']]
+            else if (is_string($key)) {
+                $component = new $key(new Getter($value));
+            }
+
+            if (!$component instanceof Component) {
+                throw new AlisaException('Компонент должен быть экземпляром ' . Component::class);
+            }
+
+            $component->register($this, $this->context, $this->request);
         }
     }
 

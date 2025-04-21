@@ -12,6 +12,7 @@ use Alisa\Sessions\Session;
 use Alisa\Sessions\User;
 use Alisa\Support\Render;
 use Alisa\Types\Card\AbstractCard;
+use Alisa\Types\Meta\Interfaces;
 use Alisa\Types\Nlu\Entities\Entities;
 use Alisa\Types\Nlu\Intents\Intents;
 use Alisa\Types\Nlu\Tokens\Tokens;
@@ -32,6 +33,14 @@ class Context
 
     public protected(set) Intents $intents;
 
+    public protected(set) ?string $locale;
+
+    public protected(set) ?string $timezone;
+
+    public protected(set) ?string $useragent;
+
+    public protected(set) ?Interfaces $interfaces;
+
     public function __construct(Request $request)
     {
         $this->request = $request;
@@ -43,6 +52,11 @@ class Context
         $this->tokens = $request->get('request.nlu.tokens');
         $this->entities = $request->get('request.nlu.entities');
         $this->intents = $request->get('request.nlu.intents');
+
+        $this->locale = $request->get('meta.locale');
+        $this->timezone = $request->get('meta.timezone');
+        $this->useragent = $request->get('meta.client_id');
+        $this->interfaces = $request->get('meta.interfaces');
     }
 
     public function __clone()
@@ -50,6 +64,13 @@ class Context
         $this->request = clone $this->request;
     }
 
+    /**
+     * @param string $text
+     * @param string|null $tts
+     * @param \Alisa\Types\Button[]|string $buttons
+     * @param bool $finish
+     * @return void
+     */
     public function respond(string $text, ?string $tts = null, array|string $buttons = [], bool $finish = false): void
     {
         $processed = Render::process([
@@ -64,6 +85,13 @@ class Context
             ->finish($finish);
     }
 
+    /**
+     * @param \Alisa\Types\Card\AbstractCard|\Alisa\Types\Directives\AudioPlayer\AudioPlayer $type
+     * @param string $text
+     * @param string|null $tts
+     * @param bool $finish
+     * @return void
+     */
     public function respondWith(AbstractCard|AudioPlayer $type, string $text = '', ?string $tts = null, bool $finish = false): void
     {
         $processed = Render::process([
@@ -87,6 +115,16 @@ class Context
             ->finish($finish);
     }
 
+    /**
+     * Вход в указанную сцену по идентификатору.
+     *
+     * Выдает исключение, если сцена не существует.
+     * Устанавливает сцену сеанса и запускает обработчик событий при входе, если он доступен.
+     *
+     * @param string $id Идентификатор сцены, в которую нужно войти.
+     * @return static Возвращает текущий экземпляр контекста для цепочки методов.
+     * @throws AlisaException Если сцена не найдена.
+     */
     public function enter(string $id): static
     {
         if (!Stage::has($id)) {
@@ -104,6 +142,16 @@ class Context
         return $this;
     }
 
+    /**
+     * Выход из текущей сцены.
+
+     * Если ID сцены не существует, то будет выброшено исключение.
+     * Если сцена существует, то будет вызван обработчик выхода, если он доступен.
+     *
+     * @param string|null $id Нужен для выполнения обработчика выхода.
+     * @return static Возвращает текущий экземпляр контекста для цепочки методов.
+     * @throws AlisaException Если сцена не найдена.
+     */
     public function leave(?string $id = null): static
     {
         Session::remove('__scene__');

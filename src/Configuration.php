@@ -19,7 +19,7 @@ class Configuration
     protected static array $defaults = [
         'skill_id' => null,
         'oauth_token' => null,
-        'fake_request' => null,
+        'payload' => null,
         'storage' => [
             'path' => null,
         ],
