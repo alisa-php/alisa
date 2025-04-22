@@ -46,9 +46,7 @@ class Alisa
     {
         $this->config = $config;
 
-        if ($config->has('payload')) {
-            $payloadPath = $config->get('payload');
-
+        if ($payloadPath = $config->get('payload')) {
             if (!file_exists($payloadPath)) {
                 throw new AlisaException('Файл запроса не существует: ' . $payloadPath);
             }

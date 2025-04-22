@@ -70,6 +70,7 @@ trait HasEvents
 
     protected function findMatchingEvent(Context $context): bool
     {
+        /** @var Event[] */
         $events = $this->getSortedEvents();
 
         foreach ($events as $event) {

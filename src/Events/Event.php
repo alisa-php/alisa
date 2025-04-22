@@ -50,20 +50,22 @@ class Event
     {
         foreach ($this->pattern as $segments => $values) {
             foreach ((array) $values as $value) {
-                if ($this->matchClosure($context, $value)) {
-                    return true;
-                }
+                if ($value instanceof Closure) {
+                    if ($this->matchClosure($context, $value)) {
+                        return true;
+                    }
+                } else {
+                    if ($this->matchDirectContextValue($context, $segments, $value)) {
+                        return true;
+                    }
 
-                if ($this->matchDirectContextValue($context, $segments, $value)) {
-                    return true;
-                }
+                    if ($this->matchStringPattern($context, $segments, $value)) {
+                        return true;
+                    }
 
-                if ($this->matchStringPattern($context, $segments, $value)) {
-                    return true;
-                }
-
-                if ($this->matchRegexPattern($context, $segments, $value)) {
-                    return true;
+                    if ($this->matchRegexPattern($context, $segments, $value)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -73,15 +75,12 @@ class Event
 
     protected function matchClosure(Context $context, mixed $closure): bool
     {
-        if (!($closure instanceof Closure)) {
-            return false;
-        }
-
         if ($closure($context)) {
             $this($context);
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     protected function matchDirectContextValue(Context $context, mixed $segments, mixed $value): bool
